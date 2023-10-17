@@ -341,7 +341,7 @@ Obsoletes: sgabios-bin <= 1:0.20180715git-10.fc38
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 8.1.1
+Version: 8.1.2
 Release: %{baserelease}%{?rcrel}%{?dist}
 Epoch: 2
 License: Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause AND FSFAP AND GPL-1.0-or-later AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-2.0-or-later WITH GCC-exception-2.0 AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND MIT AND LicenseRef-Fedora-Public-Domain AND CC-BY-3.0
@@ -2811,6 +2811,9 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 
 
 %changelog
+* Tue Oct 17 2023 Cole Robinson <crobinso@redhat.com> - 8.1.2-1
+- Update to version 8.1.2
+
 * Tue Sep 26 2023 Cole Robinson <crobinso@redhat.com> - 8.1.1-1
 - Rebase to qemu 8.1.1
 
