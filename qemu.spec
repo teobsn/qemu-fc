@@ -2032,7 +2032,9 @@ export MTESTARGS="--no-suite block"
 
 pushd %{qemu_kvm_build}
 echo "Testing %{name}-build"
-# 2022-06: ppc64le random qtest segfaults with no discernable pattern
+# ppc64le random qtest segfaults with no discernable pattern
+#   Last check: 2023-10
+#   Added: 2022-06
 %ifnarch %{power64}
 %make_build check
 %endif
