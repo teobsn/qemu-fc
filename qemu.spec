@@ -360,8 +360,6 @@ Source30: kvm-s390x.conf
 Source31: kvm-x86.conf
 Source36: README.tests
 
-Patch0001: 0001-tests-Disable-iotests-like-RHEL-does.patch
-
 BuildRequires: meson >= %{meson_version}
 BuildRequires: bison
 BuildRequires: flex
@@ -2025,6 +2023,10 @@ rm -rf %{static_buildroot}
 
 
 %check
+# Disable iotests. RHEL has done this forever, and these
+# tests have been flakey in the past
+export MTESTARGS="--no-suite block"
+
 %if %{with check}
 %if !%{tools_only}
 
