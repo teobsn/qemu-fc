@@ -1,0 +1,37 @@
+From 9a9ff4c9129de5d65a0e7cbba45a8ad89ddc51cd Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 28 Nov 2023 09:36:47 -0500
+Subject: [PATCH] pc-bios/optionrom: Fix pvh.img ld build failure on fedora
+ rawhide
+
+binutils 2.39 shows some warnings when building pvh.img
+
+/usr/bin/ld: warning: pvh.o: missing .note.GNU-stack section implies executable stack
+/usr/bin/ld: NOTE: This behaviour is deprecated and will be removed in a future version of the linker
+/usr/bin/ld: warning: pvh.img has a LOAD segment with RWX permissions
+
+The latter of which is fatal on Fedora rawhide for some reason.
+
+Add linker options to suppress the errors
+
+Signed-off-by: Cole Robinson <crobinso@redhat.com>
+---
+ pc-bios/optionrom/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/pc-bios/optionrom/Makefile b/pc-bios/optionrom/Makefile
+index 30d07026c7..f54ed39b54 100644
+--- a/pc-bios/optionrom/Makefile
++++ b/pc-bios/optionrom/Makefile
+@@ -36,7 +36,7 @@ config-cc.mak: Makefile
+ 	    $(call cc-option,-Wno-array-bounds)) 3> config-cc.mak
+ -include config-cc.mak
+ 
+-override LDFLAGS = -nostdlib -Wl,--build-id=none,-T,$(SRC_DIR)/flat.lds
++override LDFLAGS = -nostdlib -Wl,--build-id=none,-T,$(SRC_DIR)/flat.lds -Wl,--no-warn-rwx-segments -Wl,--no-warn-execstack
+ 
+ pvh.img: pvh.o pvh_main.o
+ 
+-- 
+2.43.0
+

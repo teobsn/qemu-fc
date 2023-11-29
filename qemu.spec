@@ -349,6 +349,10 @@ URL: http://www.qemu.org/
 
 Source0: https://download.qemu.org/%{name}-%{version}%{?rcstr}.tar.xz
 
+# https://patchwork.kernel.org/project/qemu-devel/patch/20231128143647.847668-1-crobinso@redhat.com/
+# Fix pvh.img ld build failure on fedora rawhide
+Patch: 0001-pc-bios-optionrom-Fix-pvh.img-ld-build-failure-on-fe.patch
+
 Source10: qemu-guest-agent.service
 Source11: 99-qemu-guest-agent.rules
 Source12: bridge.conf
@@ -3040,6 +3044,7 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 %changelog
 * Tue Nov 28 2023 Richard W.M. Jones <rjones@redhat.com> - 2:8.1.2-2
 - Bump and rebuild for capstone 5.0.1
+- Backport patch from crobinso to fix build on Rawhide
 
 * Tue Oct 17 2023 Cole Robinson <crobinso@redhat.com> - 8.1.2-1
 - Update to version 8.1.2
