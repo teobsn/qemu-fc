@@ -1,3 +1,4 @@
+
 # Provide a way to skip tests via rpmbuild `--without`
 # This makes it easier to skip tests in copr repos, where
 # the qemu test suite is historically flakey
@@ -873,6 +874,7 @@ This package provides the virtio-gpu display device for QEMU.
 %package device-display-virtio-gpu-gl
 Summary: QEMU virtio-gpu-gl display device
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-device-display-virtio-gpu%{?_isa} = %{epoch}:%{version}-%{release}
 %description device-display-virtio-gpu-gl
 This package provides the virtio-gpu-gl display device for QEMU.
 %endif
@@ -881,6 +883,7 @@ This package provides the virtio-gpu-gl display device for QEMU.
 %package device-display-virtio-gpu-rutabaga
 Summary: QEMU virtio-gpu-rutabaga display device
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-device-display-virtio-gpu%{?_isa} = %{epoch}:%{version}-%{release}
 %description device-display-virtio-gpu-rutabaga
 This package provides the virtio-gpu-rutabaga display device for QEMU.
 %endif
@@ -888,6 +891,7 @@ This package provides the virtio-gpu-rutabaga display device for QEMU.
 %package device-display-virtio-gpu-pci
 Summary: QEMU virtio-gpu-pci display device
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-device-display-virtio-gpu%{?_isa} = %{epoch}:%{version}-%{release}
 %description device-display-virtio-gpu-pci
 This package provides the virtio-gpu-pci display device for QEMU.
 
@@ -895,6 +899,8 @@ This package provides the virtio-gpu-pci display device for QEMU.
 %package device-display-virtio-gpu-pci-gl
 Summary: QEMU virtio-gpu-pci-gl display device
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-device-display-virtio-gpu-pci%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-device-display-virtio-gpu-gl%{?_isa} = %{epoch}:%{version}-%{release}
 %description device-display-virtio-gpu-pci-gl
 This package provides the virtio-gpu-pci-gl display device for QEMU.
 %endif
@@ -903,6 +909,7 @@ This package provides the virtio-gpu-pci-gl display device for QEMU.
 %package device-display-virtio-gpu-pci-rutabaga
 Summary: QEMU virtio-gpu-pci-rutabaga display device
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-device-display-virtio-gpu-pci%{?_isa} = %{epoch}:%{version}-%{release}
 %description device-display-virtio-gpu-pci-rutabaga
 This package provides the virtio-gpu-pci-rutabaga display device for QEMU.
 %endif
@@ -910,18 +917,21 @@ This package provides the virtio-gpu-pci-rutabaga display device for QEMU.
 %package device-display-virtio-gpu-ccw
 Summary: QEMU virtio-gpu-ccw display device
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-device-display-virtio-gpu%{?_isa} = %{epoch}:%{version}-%{release}
 %description device-display-virtio-gpu-ccw
 This package provides the virtio-gpu-ccw display device for QEMU.
 
 %package device-display-virtio-vga
 Summary: QEMU virtio-vga display device
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-device-display-virtio-gpu%{?_isa} = %{epoch}:%{version}-%{release}
 %description device-display-virtio-vga
 This package provides the virtio-vga display device for QEMU.
 
 %package device-display-virtio-vga-gl
 Summary: QEMU virtio-vga-gl display device
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-device-display-virtio-vga%{?_isa} = %{epoch}:%{version}-%{release}
 %description device-display-virtio-vga-gl
 This package provides the virtio-vga-gl display device for QEMU.
 
@@ -929,6 +939,7 @@ This package provides the virtio-vga-gl display device for QEMU.
 %package device-display-virtio-vga-rutabaga
 Summary: QEMU virtio-vga-rutabaga display device
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
+Requires: %{name}-device-display-virtio-vga%{?_isa} = %{epoch}:%{version}-%{release}
 %description device-display-virtio-vga-rutabaga
 This package provides the virtio-vga-rutabaga display device for QEMU.
 %endif
