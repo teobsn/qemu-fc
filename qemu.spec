@@ -370,7 +370,7 @@ URL: http://www.qemu.org/
 %global dlurl https://download.qemu.org
 
 Source0: %{dlurl}/%{name}-%{version}%{?rcstr}.tar.xz
-Source1: %{dlurl}/https://download.qemu.org/%{name}-%{version}%{?rcstr}.tar.xz.sig
+Source1: %{dlurl}/%{name}-%{version}%{?rcstr}.tar.xz.sig
 Source2: gpgkey-CEACC9E15534EBABB82D3FA03353C9CEF108B584.gpg
 
 # https://patchwork.kernel.org/project/qemu-devel/patch/20231128143647.847668-1-crobinso@redhat.com/
