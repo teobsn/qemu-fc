@@ -350,14 +350,14 @@ Obsoletes: %{name}-system-unicore32-core <= %{epoch}:%{version}-%{release} \
 Obsoletes: sgabios-bin <= 1:0.20180715git-10.fc38
 
 # Release candidate version tracking
-%global rcver rc2
+#global rcver rc2
 %if 0%{?rcver:1}
 %global rcrel .%{rcver}
 %global rcstr -%{rcver}
 %endif
 
 # To prevent rpmdev-bumpspec breakage
-%global baserelease 0.3
+%global baserelease 1
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
@@ -373,8 +373,6 @@ Source0: https://download.qemu.org/%{name}-%{version}%{?rcstr}.tar.xz
 # Fix pvh.img ld build failure on fedora rawhide
 Patch: 0001-pc-bios-optionrom-Fix-pvh.img-ld-build-failure-on-fe.patch
 
-# See https://lists.gnu.org/archive/html/qemu-devel/2023-12/msg01165.html
-Patch: 0001-xen-fix-condition-for-enabling-the-Xen-accelerator.patch
 
 Source10: qemu-guest-agent.service
 Source11: 99-qemu-guest-agent.rules
@@ -3125,6 +3123,9 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 
 
 %changelog
+* Tue Jan  9 2024 Daniel P. Berrangé <berrange@redhat.com> - 8.2.0-1
+- Update to 8.2.0 release
+
 * Sat Dec  9 2023 Richard W.M. Jones <rjones@redhat.com> - 2:8.2.0-0.3.rc2
 - Further fix for Xen 4.18
 
