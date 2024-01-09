@@ -367,7 +367,11 @@ Epoch: 2
 License: Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause AND FSFAP AND GPL-1.0-or-later AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-2.0-or-later WITH GCC-exception-2.0 AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND MIT AND LicenseRef-Fedora-Public-Domain AND CC-BY-3.0
 URL: http://www.qemu.org/
 
-Source0: https://download.qemu.org/%{name}-%{version}%{?rcstr}.tar.xz
+%global dlurl https://download.qemu.org
+
+Source0: %{dlurl}/%{name}-%{version}%{?rcstr}.tar.xz
+Source1: %{dlurl}/https://download.qemu.org/%{name}-%{version}%{?rcstr}.tar.xz.sig
+Source2: gpgkey-CEACC9E15534EBABB82D3FA03353C9CEF108B584.gpg
 
 # https://patchwork.kernel.org/project/qemu-devel/patch/20231128143647.847668-1-crobinso@redhat.com/
 # Fix pvh.img ld build failure on fedora rawhide
@@ -388,6 +392,7 @@ Source30: kvm-s390x.conf
 Source31: kvm-x86.conf
 Source36: README.tests
 
+BuildRequires: gnupg2
 BuildRequires: meson >= %{meson_version}
 BuildRequires: bison
 BuildRequires: flex
@@ -1497,6 +1502,8 @@ This package provides the QEMU system emulator for Xtensa boards.
 
 
 %prep
+gpgv2 --keyring %{SOURCE2} %{SOURCE1} %{SOURCE0}
+
 %autosetup -n qemu-%{version}%{?rcstr} -S git_am
 
 %global qemu_kvm_build qemu_kvm_build
@@ -3128,6 +3135,7 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 %changelog
 * Tue Jan  9 2024 Daniel P. Berrangé <berrange@redhat.com> - 8.2.0-1
 - Update to 8.2.0 release
+- Add gpg verification of source tarball
 
 * Sat Dec  9 2023 Richard W.M. Jones <rjones@redhat.com> - 2:8.2.0-0.3.rc2
 - Further fix for Xen 4.18
