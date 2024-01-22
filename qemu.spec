@@ -374,8 +374,9 @@ Source0: %{dlurl}/%{name}-%{version}%{?rcstr}.tar.xz
 Source1: %{dlurl}/%{name}-%{version}%{?rcstr}.tar.xz.sig
 Source2: gpgkey-CEACC9E15534EBABB82D3FA03353C9CEF108B584.gpg
 
-# https://patchwork.kernel.org/project/qemu-devel/patch/20231128143647.847668-1-crobinso@redhat.com/
 # Fix pvh.img ld build failure on fedora rawhide
+# Not yet submitted upstream in this form. Original attempt is here:
+# https://patchwork.kernel.org/project/qemu-devel/patch/20231128143647.847668-1-crobinso@redhat.com/
 Patch: 0001-pc-bios-optionrom-Fix-pvh.img-ld-build-failure-on-fe.patch
 
 
