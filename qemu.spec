@@ -388,7 +388,7 @@ Patch: 0001-target-i386-do-not-re-compute-new-pc-with-CF_PCREL.patch
 
 # Fix builds on i686.
 # Sent upstream 29-01-2024
-Patch: 0001-block-blkio-Don-t-assume-size_t-is-64-bit.patch
+Patch: 0001-block-blkio-Make-s-mem_region_alignment-be-64-bits.patch
 
 Source10: qemu-guest-agent.service
 Source11: 99-qemu-guest-agent.rules
