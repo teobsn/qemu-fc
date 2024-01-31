@@ -1920,7 +1920,9 @@ pushd %{static_builddir}
 run_configure \
   --enable-attr \
   --enable-linux-user \
+%ifnarch %{power64}
   --enable-pie \
+%endif
   --enable-tcg \
   --disable-install-blobs \
   --static
