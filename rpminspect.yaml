@@ -1,8 +1,3 @@
-# complains about qemu use of: gethostbyname, inet_aton, inet_ntoa
-# but warning here isn't really accomplishing anything
-badfuncs:
-  exclude_path: .*
-
 # These pre-compiled files have `.symtab`
 debuginfo:
   ignore:
@@ -16,13 +11,17 @@ elf:
   exclude_path: ^/usr/share/qemu/(u-boot.e500|hppa-firmware.img)$
 
 
-# bundled edk2 source CryptoPkg fuzz tests have invalid unicode,
-# but I assume that's intentional
-#
-# We would exclude that path using `unicode:` section, but fedora CI
-# doesn't allow it:
-# rpminspect: *** ignoring 'unicode' section in ...rpminspect.yaml; only allowed in system-wide configuration
-#
-# So instead we fully disable the unicode check
 inspections:
+  # complains about qemu use of: gethostbyname, inet_aton, inet_ntoa
+  # Warning here isn't really accomplishing anything
+  badfuncs: off
+
+  # bundled edk2 source CryptoPkg fuzz tests have invalid unicode,
+  # but I assume that's intentional
+  #
+  # We would exclude that path using `unicode:` section, but fedora CI
+  # doesn't allow it:
+  # rpminspect: *** ignoring 'unicode' section in ...rpminspect.yaml; only allowed in system-wide configuration
+  #
+  # So instead we fully disable the unicode check
   unicode: off
