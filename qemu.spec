@@ -361,7 +361,7 @@ Obsoletes: sgabios-bin <= 1:0.20180715git-10.fc38
 %endif
 
 # To prevent rpmdev-bumpspec breakage
-%global baserelease 1
+%global baserelease 2
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
@@ -3157,6 +3157,9 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 
 
 %changelog
+* Sat Apr 06 2024 Cole Robinson <crobinso@redhat.com> - 8.2.2-2
+- Rebuild for new libiscsi
+
 * Wed Mar 06 2024 Cole Robinson <crobinso@redhat.com> - 8.2.2-1
 - New release qemu 8.2.2
 
