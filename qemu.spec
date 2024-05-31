@@ -133,7 +133,7 @@
 
 # Matches edk2.spec ExclusiveArch
 %global have_edk2 0
-%ifarch %{ix86} x86_64 %{arm} aarch64
+%ifarch %{ix86} x86_64 %{arm} aarch64 riscv64
 %global have_edk2 1
 %endif
 
@@ -1402,6 +1402,9 @@ This package provides the QEMU system emulator for RISC-V systems.
 %package system-riscv-core
 Summary: QEMU system emulator for RISC-V
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
+%if %{have_edk2}
+Requires: edk2-riscv64
+%endif
 %description system-riscv-core
 This package provides the QEMU system emulator for RISC-V systems.
 
