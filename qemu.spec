@@ -361,7 +361,7 @@ Obsoletes: sgabios-bin <= 1:0.20180715git-10.fc38
 %endif
 
 # To prevent rpmdev-bumpspec breakage
-%global baserelease 1
+%global baserelease 2
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
@@ -3166,6 +3166,9 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 
 
 %changelog
+* Fri Jul 19 2024 Fedora Release Engineering <releng@fedoraproject.org> - 2:9.0.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_41_Mass_Rebuild
+
 * Wed Apr 24 2024 Cole Robinson <crobinso@redhat.com> - 9.0.0-1
 - New release qemu 9.0.0 GA
 
