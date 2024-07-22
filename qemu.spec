@@ -361,7 +361,7 @@ Obsoletes: sgabios-bin <= 1:0.20180715git-10.fc38
 %endif
 
 # To prevent rpmdev-bumpspec breakage
-%global baserelease 2
+%global baserelease 3
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
@@ -424,6 +424,7 @@ BuildRequires: librbd-devel
 # We need both because the 'stap' binary is probed for by configure
 BuildRequires: systemtap
 BuildRequires: systemtap-sdt-devel
+BuildRequires: /usr/bin/dtrace
 # For VNC PNG support
 BuildRequires: libpng-devel
 # For virtiofs
@@ -3166,6 +3167,9 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 
 
 %changelog
+* Mon Jul 22 2024 Lumír Balhar <lbalhar@redhat.com> - 2:9.0.0-3
+- Add new systemtap-sdt-dtrace to build deps
+
 * Fri Jul 19 2024 Fedora Release Engineering <releng@fedoraproject.org> - 2:9.0.0-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_41_Mass_Rebuild
 
