@@ -2331,8 +2331,11 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 %{_bindir}/qemu-edid
 %{_bindir}/qemu-trace-stap
 %{_datadir}/%{name}/simpletrace.py*
+%dir %{_datadir}/%{name}/tracetool/
 %{_datadir}/%{name}/tracetool/*.py*
+%dir %{_datadir}/%{name}/tracetool/backend/
 %{_datadir}/%{name}/tracetool/backend/*.py*
+%dir %{_datadir}/%{name}/tracetool/format/
 %{_datadir}/%{name}/tracetool/format/*.py*
 %{_datadir}/%{name}/dump-guest-memory.py*
 %{_datadir}/%{name}/trace-events-all
