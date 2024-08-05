@@ -562,14 +562,11 @@ BuildRequires: rutabaga-gfx-ffi-devel
 %endif
 
 %if %{user_static}
-BuildRequires: glibc-static glib2-static zlib-static
+BuildRequires: glibc-static
+BuildRequires: glib2-static
+BuildRequires: zlib-static
 # -latomic added by GLib 2.81.0, 2024-06-28
 BuildRequires: libatomic-static
-%if 0%{?fedora} >= 37
-BuildRequires: pcre2-static
-%else
-BuildRequires: pcre-static
-%endif
 %endif
 
 
