@@ -2355,6 +2355,7 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 %{_datadir}/%{name}/keymaps/
 %{_datadir}/%{name}/linuxboot_dma.bin
 %attr(4755, -, -) %{_libexecdir}/qemu-bridge-helper
+%dir %{_libdir}/%{name}/
 %{_mandir}/man1/%{name}.1*
 %{_mandir}/man7/qemu-block-drivers.7*
 %{_mandir}/man7/qemu-cpu-models.7*
