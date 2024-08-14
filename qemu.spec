@@ -11,17 +11,20 @@
 %global usbredir_version 0.7.1
 %global ipxe_version 20200823-5.git4bd064de
 
+%define have_vmsr_helper 0
 %global have_memlock_limits 0
 %global need_qemu_kvm 0
 %ifarch %{ix86}
 %global kvm_package   system-x86
 # need_qemu_kvm should only ever be used by x86
 %global need_qemu_kvm 1
+%define have_vmsr_helper 1
 %endif
 %ifarch x86_64
 %global kvm_package   system-x86
 # need_qemu_kvm should only ever be used by x86
 %global need_qemu_kvm 1
+%define have_vmsr_helper 1
 %endif
 %ifarch %{power64}
 %global have_memlock_limits 1
@@ -349,23 +352,25 @@ Obsoletes: %{name}-system-lm32 <= %{epoch}:%{version}-%{release} \
 Obsoletes: %{name}-system-lm32-core <= %{epoch}:%{version}-%{release} \
 Obsoletes: %{name}-system-moxie <= %{epoch}:%{version}-%{release} \
 Obsoletes: %{name}-system-moxie-core <= %{epoch}:%{version}-%{release} \
+Obsoletes: %{name}-system-nios2 <= %{epoch}:%{version}-%{release} \
+Obsoletes: %{name}-system-nios2-core <= %{epoch}:%{version}-%{release} \
 Obsoletes: %{name}-system-unicore32 <= %{epoch}:%{version}-%{release} \
 Obsoletes: %{name}-system-unicore32-core <= %{epoch}:%{version}-%{release} \
 Obsoletes: sgabios-bin <= 1:0.20180715git-10.fc38
 
 # Release candidate version tracking
-# global rcver rc4
+%global rcver rc2
 %if 0%{?rcver:1}
 %global rcrel .%{rcver}
 %global rcstr -%{rcver}
 %endif
 
 # To prevent rpmdev-bumpspec breakage
-%global baserelease 5
+%global baserelease 0.1
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 9.0.0
+Version: 9.1.0
 Release: %{baserelease}%{?rcrel}%{?dist}
 Epoch: 2
 License: Apache-2.0 AND BSD-2-Clause AND BSD-3-Clause AND FSFAP AND GPL-1.0-or-later AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-2.0-or-later WITH GCC-exception-2.0 AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND MIT AND LicenseRef-Fedora-Public-Domain AND CC-BY-3.0
@@ -581,7 +586,6 @@ Requires: %{name}-system-loongarch64 = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-m68k = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-microblaze = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-mips = %{epoch}:%{version}-%{release}
-Requires: %{name}-system-nios2 = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-or1k = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-ppc = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-riscv = %{epoch}:%{version}-%{release}
@@ -1071,7 +1075,6 @@ Requires: qemu-user-static-loongarch64
 Requires: qemu-user-static-m68k
 Requires: qemu-user-static-microblaze
 Requires: qemu-user-static-mips
-Requires: qemu-user-static-nios2
 Requires: qemu-user-static-or1k
 Requires: qemu-user-static-ppc
 Requires: qemu-user-static-riscv
@@ -1080,6 +1083,8 @@ Requires: qemu-user-static-sh4
 Requires: qemu-user-static-sparc
 Requires: qemu-user-static-x86
 Requires: qemu-user-static-xtensa
+Obsoletes: qemu-user-static-nios2 <= %{epoch}:%{version}-%{release}
+
 
 %description user-static
 This package provides the user mode emulation of qemu targets built as
@@ -1143,12 +1148,6 @@ static binaries
 Summary: QEMU user mode emulation of mips qemu targets static build
 %description user-static-mips
 This package provides the mips user mode emulation of qemu targets built as
-static binaries
-
-%package user-static-nios2
-Summary: QEMU user mode emulation of nios2 qemu targets static build
-%description user-static-nios2
-This package provides the nios2 user mode emulation of qemu targets built as
 static binaries
 
 %package user-static-or1k
@@ -1347,20 +1346,6 @@ Requires: %{name}-common = %{epoch}:%{version}-%{release}
 This package provides the QEMU system emulator for MIPS systems.
 
 
-%package system-nios2
-Summary: QEMU system emulator for nios2
-Requires: %{name}-system-nios2-core = %{epoch}:%{version}-%{release}
-%{requires_all_modules}
-%description system-nios2
-This package provides the QEMU system emulator for NIOS2.
-
-%package system-nios2-core
-Summary: QEMU system emulator for nios2
-Requires: %{name}-common = %{epoch}:%{version}-%{release}
-%description system-nios2-core
-This package provides the QEMU system emulator for NIOS2.
-
-
 %package system-or1k
 Summary: QEMU system emulator for OpenRisc32
 Requires: %{name}-system-or1k-core = %{epoch}:%{version}-%{release}
@@ -1537,7 +1522,6 @@ mkdir -p %{static_builddir}
   --disable-attr                   \\\
   --disable-auth-pam               \\\
   --disable-avx2                   \\\
-  --disable-avx512f                \\\
   --disable-avx512bw               \\\
   --disable-blkio                  \\\
   --disable-block-drv-whitelist-in-tools \\\
@@ -1562,6 +1546,7 @@ mkdir -p %{static_builddir}
   --disable-debug-graph-lock       \\\
   --disable-debug-info             \\\
   --disable-debug-mutex            \\\
+  --disable-debug-remap            \\\
   --disable-debug-tcg              \\\
   --disable-dmg                    \\\
   --disable-docs                   \\\
@@ -1597,7 +1582,6 @@ mkdir -p %{static_builddir}
   --disable-linux-aio              \\\
   --disable-linux-io-uring         \\\
   --disable-linux-user             \\\
-  --disable-live-block-migration   \\\
   --disable-lto                    \\\
   --disable-lzfse                  \\\
   --disable-lzo                    \\\
@@ -1619,10 +1603,10 @@ mkdir -p %{static_builddir}
   --disable-pipewire               \\\
   --disable-pixman                 \\\
   --disable-plugins                \\\
-  --disable-pvrdma                 \\\
   --disable-qcow1                  \\\
   --disable-qed                    \\\
   --disable-qom-cast-debug         \\\
+  --disable-qpl                    \\\
   --disable-rbd                    \\\
   --disable-rdma                   \\\
   --disable-relocatable            \\\
@@ -1649,6 +1633,7 @@ mkdir -p %{static_builddir}
   --disable-tools                  \\\
   --disable-tpm                    \\\
   --disable-tsan                   \\\
+  --disable-uadk                   \\\
   --disable-u2f                    \\\
   --disable-usb-redir              \\\
   --disable-user                   \\\
@@ -1731,7 +1716,6 @@ run_configure \
   --enable-attr \
 %ifarch %{ix86} x86_64
   --enable-avx2 \
-  --enable-avx512f \
   --enable-avx512bw \
 %endif
 %if %{have_libblkio}
@@ -1845,12 +1829,8 @@ run_configure \
   --enable-linux-io-uring \
 %endif
   --enable-linux-user \
-  --enable-live-block-migration \
   --enable-multiprocess \
   --enable-parallels \
-%if %{have_librdma}
-  --enable-pvrdma \
-%endif
   --enable-qcow1 \
   --enable-qed \
   --enable-qom-cast-debug \
@@ -1976,6 +1956,12 @@ install -D -m 0644 %{_sourcedir}/bridge.conf %{buildroot}%{_sysconfdir}/%{name}/
 # Install qemu-pr-helper service
 install -m 0644 contrib/systemd/qemu-pr-helper.service %{buildroot}%{_unitdir}
 install -m 0644 contrib/systemd/qemu-pr-helper.socket %{buildroot}%{_unitdir}
+
+%if %{have_vmsr_helper}
+# Install qemu-vmsr-helper service
+install -m 0644 contrib/systemd/qemu-vmsr-helper.service %{buildroot}%{_unitdir}
+install -m 0644 contrib/systemd/qemu-vmsr-helper.socket %{buildroot}%{_unitdir}
+%endif
 
 %if %{have_memlock_limits}
 install -D -p -m 644 %{_sourcedir}/95-kvm-memlock.conf %{buildroot}%{_sysconfdir}/security/limits.d/95-kvm-memlock.conf
@@ -2224,11 +2210,6 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 %post user-static-mips
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
 %postun user-static-mips
-/bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
-
-%post user-static-nios2
-/bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
-%postun user-static-nios2
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
 
 %post user-static-or1k
@@ -2540,7 +2521,6 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 %{_bindir}/qemu-mips64el
 %{_bindir}/qemu-mipsn32
 %{_bindir}/qemu-mipsn32el
-%{_bindir}/qemu-nios2
 %{_bindir}/qemu-or1k
 %{_bindir}/qemu-ppc
 %{_bindir}/qemu-ppc64
@@ -2613,9 +2593,6 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 %{_datadir}/systemtap/tapset/qemu-mipsn32el.stp
 %{_datadir}/systemtap/tapset/qemu-mipsn32el-log.stp
 %{_datadir}/systemtap/tapset/qemu-mipsn32el-simpletrace.stp
-%{_datadir}/systemtap/tapset/qemu-nios2.stp
-%{_datadir}/systemtap/tapset/qemu-nios2-log.stp
-%{_datadir}/systemtap/tapset/qemu-nios2-simpletrace.stp
 %{_datadir}/systemtap/tapset/qemu-or1k.stp
 %{_datadir}/systemtap/tapset/qemu-or1k-log.stp
 %{_datadir}/systemtap/tapset/qemu-or1k-simpletrace.stp
@@ -2782,12 +2759,6 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 %{_exec_prefix}/lib/binfmt.d/qemu-mipsel-static.conf
 %{_exec_prefix}/lib/binfmt.d/qemu-mipsn32-static.conf
 %{_exec_prefix}/lib/binfmt.d/qemu-mipsn32el-static.conf
-
-%files user-static-nios2
-%{_bindir}/qemu-nios2-static
-%{_datadir}/systemtap/tapset/qemu-nios2-log-static.stp
-%{_datadir}/systemtap/tapset/qemu-nios2-simpletrace-static.stp
-%{_datadir}/systemtap/tapset/qemu-nios2-static.stp
 
 %files user-static-or1k
 %{_bindir}/qemu-or1k-static
@@ -3012,15 +2983,6 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 %{_mandir}/man1/qemu-system-mips64.1*
 
 
-%files system-nios2
-%files system-nios2-core
-%{_bindir}/qemu-system-nios2
-%{_datadir}/systemtap/tapset/qemu-system-nios2.stp
-%{_datadir}/systemtap/tapset/qemu-system-nios2-log.stp
-%{_datadir}/systemtap/tapset/qemu-system-nios2-simpletrace.stp
-%{_mandir}/man1/qemu-system-nios2.1*
-
-
 %files system-or1k
 %files system-or1k-core
 %{_bindir}/qemu-system-or1k
@@ -3151,6 +3113,11 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 %{_bindir}/qemu-kvm
 %{_mandir}/man1/qemu-kvm.1*
 %endif
+%if %{have_vmsr_helper}
+%{_bindir}/qemu-vmsr-helper
+%{_unitdir}/qemu-vmsr-helper.service
+%{_unitdir}/qemu-vmsr-helper.socket
+%endif
 
 
 %files system-xtensa
@@ -3170,6 +3137,9 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 
 
 %changelog
+* Tue Aug 20 2024 Cole Robinson <crobinso@redhat.com> - 9.1.0-0.1.rc2
+- New release qemu-9.1.0-rc2
+
 * Mon Aug 05 2024 Cole Robinson <crobinso@redhat.com> - 2:9.0.0-5
 - Fix static builds with new glib2
 - Add libdir/qemu to qemu-common (bz 2283996)
