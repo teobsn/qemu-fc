@@ -400,6 +400,10 @@ Source30: kvm-s390x.conf
 Source31: kvm-x86.conf
 Source36: README.tests
 
+# Skip failing test in copr
+# https://gitlab.com/qemu-project/qemu/-/issues/2541
+Patch: 0001-Disable-9p-local-tests-that-fail-on-copr-aarch64.patch
+
 BuildRequires: gnupg2
 BuildRequires: meson >= %{meson_version}
 BuildRequires: bison
