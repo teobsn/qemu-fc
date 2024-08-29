@@ -359,14 +359,14 @@ Obsoletes: %{name}-system-unicore32-core <= %{epoch}:%{version}-%{release} \
 Obsoletes: sgabios-bin <= 1:0.20180715git-10.fc38
 
 # Release candidate version tracking
-%global rcver rc3
+%global rcver rc4
 %if 0%{?rcver:1}
 %global rcrel .%{rcver}
 %global rcstr -%{rcver}
 %endif
 
 # To prevent rpmdev-bumpspec breakage
-%global baserelease 0.2
+%global baserelease 0.3
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
@@ -3145,7 +3145,10 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 
 
 %changelog
-* Mon Aug 26 2024 Cole Robinson <crobinso@redhat.com> - 9.1.0-0.1.rc3
+* Thu Aug 29 2024 Cole Robinson <crobinso@redhat.com> - 9.1.0-0.3.rc4
+- New release qemu-9.1.0-rc4
+
+* Mon Aug 26 2024 Cole Robinson <crobinso@redhat.com> - 9.1.0-0.2.rc3
 - New release qemu-9.1.0-rc3
 
 * Tue Aug 20 2024 Cole Robinson <crobinso@redhat.com> - 9.1.0-0.1.rc2
