@@ -230,7 +230,6 @@
 %define requires_device_display_virtio_gpu_pci Requires: %{name}-device-display-virtio-gpu-pci = %{evr}
 %define requires_device_display_virtio_gpu_ccw Requires: %{name}-device-display-virtio-gpu-ccw = %{evr}
 %define requires_device_display_virtio_vga Requires: %{name}-device-display-virtio-vga = %{evr}
-%define requires_device_display_virtio_vga_gl Requires: %{name}-device-display-virtio-vga-gl = %{evr}
 %define requires_package_qemu_pr_helper Requires: qemu-pr-helper
 %ifnarch %{ix86}
 %if 0%{?fedora} || 0%{?rhel} > 9
@@ -248,10 +247,12 @@
 %define requires_device_display_vhost_user_gpu Requires: %{name}-device-display-vhost-user-gpu = %{evr}
 %define requires_device_display_virtio_gpu_gl Requires: %{name}-device-display-virtio-gpu-gl = %{evr}
 %define requires_device_display_virtio_gpu_pci_gl Requires: %{name}-device-display-virtio-gpu-pci-gl = %{evr}
+%define requires_device_display_virtio_vga_gl Requires: %{name}-device-display-virtio-vga-gl = %{evr}
 %else
 %define requires_device_display_vhost_user_gpu %{nil}
 %define requires_device_display_virtio_gpu_gl %{nil}
 %define requires_device_display_virtio_gpu_pci_gl %{nil}
+%define requires_device_display_virtio_vga_gl %{nil}
 %endif
 
 %if %{have_rutabaga_gfx}
@@ -938,12 +939,14 @@ Requires: %{name}-device-display-virtio-gpu%{?_isa} = %{epoch}:%{version}-%{rele
 %description device-display-virtio-vga
 This package provides the virtio-vga display device for QEMU.
 
+%if %{have_virgl}
 %package device-display-virtio-vga-gl
 Summary: QEMU virtio-vga-gl display device
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
 Requires: %{name}-device-display-virtio-vga%{?_isa} = %{epoch}:%{version}-%{release}
 %description device-display-virtio-vga-gl
 This package provides the virtio-vga-gl display device for QEMU.
+%endif
 
 %if %{have_rutabaga_gfx}
 %package device-display-virtio-vga-rutabaga
@@ -2463,8 +2466,10 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 %{_libdir}/%{name}/hw-s390x-virtio-gpu-ccw.so
 %files device-display-virtio-vga
 %{_libdir}/%{name}/hw-display-virtio-vga.so
+%if %{have_virgl}
 %files device-display-virtio-vga-gl
 %{_libdir}/%{name}/hw-display-virtio-vga-gl.so
+%endif
 %if %{have_rutabaga_gfx}
 %files device-display-virtio-vga-rutabaga
 %{_libdir}/%{name}/hw-display-virtio-vga-rutabaga.so
