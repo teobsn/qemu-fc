@@ -420,6 +420,8 @@ Source36: README.tests
 # Skip failing test in copr
 # https://gitlab.com/qemu-project/qemu/-/issues/2541
 Patch: 0001-Disable-9p-local-tests-that-fail-on-copr-aarch64.patch
+# Fix compat with new glibc (not upstream yet)
+Patch: schedattr.patch
 
 BuildRequires: gnupg2
 BuildRequires: meson >= %{meson_version}
