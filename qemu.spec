@@ -3166,7 +3166,7 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 
 
 %changelog
-* Mon Sep 16 2024 Daniel P. Berrangé <berrange@redhat.com> - 9.1.0-3
+* Wed Oct 16 2024 Daniel P. Berrangé <berrange@redhat.com> - 9.1.0-3
 - Replace BLACKLIST_RPC with QEMU_GA_ARGS in sysconfig file
 - Related rhbz #2258100
 
