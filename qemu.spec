@@ -423,6 +423,12 @@ Patch: 0001-Disable-9p-local-tests-that-fail-on-copr-aarch64.patch
 # Fix compat with new glibc (not upstream yet)
 Patch: schedattr.patch
 
+# Openat2 support (upstream commit 9651cea)
+Patch: 0001-linux-user-add-openat2-support-in-linux-user.patch
+# linux-user-cris support for openat2, can be removed once "cris" is
+# removed (after v9.1.0)
+Patch: 0001-linux-user-guard-openat2-with-if-defined-TARGET_NR_o.patch
+
 BuildRequires: gnupg2
 BuildRequires: meson >= %{meson_version}
 BuildRequires: bison
