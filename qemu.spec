@@ -367,11 +367,11 @@ Obsoletes: sgabios-bin <= 1:0.20180715git-10.fc38
 %endif
 
 # To prevent rpmdev-bumpspec breakage
-%global baserelease 4
+%global baserelease 1
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 9.1.0
+Version: 9.1.1
 Release: %{baserelease}%{?rcrel}%{?dist}
 Epoch: 2
 License: %{shrink:
@@ -3174,6 +3174,9 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 
 
 %changelog
+* Thu Oct 24 2024 Cole Robinson <crobinso@redhat.com> - 9.1.1-1
+- Rebase to qemu 9.1.1 stable
+
 * Thu Oct 24 2024 Daniel P. Berrangé <berrange@redhat.com> - 9.1.0-4
 - Add openat2 support to linux-user
 - Fix compat with new glibc for 'struct sched_attr'
