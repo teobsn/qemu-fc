@@ -367,7 +367,7 @@ Obsoletes: sgabios-bin <= 1:0.20180715git-10.fc38
 %endif
 
 # To prevent rpmdev-bumpspec breakage
-%global baserelease 3
+%global baserelease 4
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
@@ -3174,6 +3174,10 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 
 
 %changelog
+* Thu Oct 24 2024 Daniel P. Berrangé <berrange@redhat.com> - 9.1.0-4
+- Add openat2 support to linux-user
+- Fix compat with new glibc for 'struct sched_attr'
+
 * Wed Oct 16 2024 Daniel P. Berrangé <berrange@redhat.com> - 9.1.0-3
 - Replace BLACKLIST_RPC with QEMU_GA_ARGS in sysconfig file
 - Related rhbz #2258100
