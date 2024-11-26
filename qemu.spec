@@ -2151,7 +2151,12 @@ echo "Testing %{name}-build"
 # ppc64le random qtest segfaults with no discernable pattern
 #   Last check: 2023-10
 #   Added: 2022-06
-%ifnarch %{power64}
+#
+# i686 test failing as of qemu-9.2.0-rcX. Discussed here:
+# https://src.fedoraproject.org/rpms/qemu/pull-request/71
+# Decided to disable i686 tests entirely, en route to fully
+# removing i686 support in the future
+%ifnarch %{power64} %{ix86}
 %make_build check
 %endif
 
