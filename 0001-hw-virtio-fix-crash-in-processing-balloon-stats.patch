@@ -1,0 +1,86 @@
+From 231345d9109bcc6601d570e9e04585493b125b67 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Daniel=20P=2E=20Berrang=C3=A9?= <berrange@redhat.com>
+Date: Fri, 29 Nov 2024 09:29:23 +0000
+Subject: [PATCH] hw/virtio: fix crash in processing balloon stats
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+balloon_stats_get_all will iterate over guest stats upto the max
+VIRTIO_BALLOON_S_NR value, calling visit_type_uint64 to populate
+the QObject dict. The dict keys are obtained from the static
+array balloon_stat_names which is VIRTIO_BALLOON_S_NR in size.
+
+Unfortunately the way that array is declared results in any
+unassigned stats getting a NULL name, which will then cause
+visit_type_uint64 to trigger an assert in qobject_output_add_obj.
+
+The balloon_stat_names array was fortunately fully populated with
+names until recently:
+
+  commit 0d2eeef77a33315187df8519491a900bde4a3d83
+  Author: Bibo Mao <maobibo@loongson.cn>
+  Date:   Mon Oct 28 10:38:09 2024 +0800
+
+    linux-headers: Update to Linux v6.12-rc5
+
+pulled a change to include/standard-headers/linux/virtio_balloon.h
+which increased VIRTIO_BALLOON_S_NR by 6, and failed to add the new
+names to balloon_stat_names.
+
+This commit fills in the missing names, and uses a static assert to
+guarantee that any future changes to VIRTIO_BALLOON_S_NR will cause
+a build failure until balloon_stat_names is updated.
+
+This problem was detected by the Cockpit Project's automated
+integration tests on QEMU 9.2.0-rc1.
+
+Fixes: 0d2eeef77a33315187df8519491a900bde4a3d83
+Reported-by: Martin Pitt <mpitt@redhat.com>
+Signed-off-by: Daniel P. Berrangé <berrange@redhat.com>
+---
+ hw/virtio/virtio-balloon.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/hw/virtio/virtio-balloon.c b/hw/virtio/virtio-balloon.c
+index 609e39a821..afd2ad6dd6 100644
+--- a/hw/virtio/virtio-balloon.c
++++ b/hw/virtio/virtio-balloon.c
+@@ -167,19 +167,33 @@ static void balloon_deflate_page(VirtIOBalloon *balloon,
+     }
+ }
+ 
++/*
++ * All stats upto VIRTIO_BALLOON_S_NR /must/ have a
++ * non-NULL name declared here, since these are used
++ * as keys for populating the QDict with stats
++ */
+ static const char *balloon_stat_names[] = {
+    [VIRTIO_BALLOON_S_SWAP_IN] = "stat-swap-in",
+    [VIRTIO_BALLOON_S_SWAP_OUT] = "stat-swap-out",
+    [VIRTIO_BALLOON_S_MAJFLT] = "stat-major-faults",
+    [VIRTIO_BALLOON_S_MINFLT] = "stat-minor-faults",
+    [VIRTIO_BALLOON_S_MEMFREE] = "stat-free-memory",
++
+    [VIRTIO_BALLOON_S_MEMTOT] = "stat-total-memory",
+    [VIRTIO_BALLOON_S_AVAIL] = "stat-available-memory",
+    [VIRTIO_BALLOON_S_CACHES] = "stat-disk-caches",
+    [VIRTIO_BALLOON_S_HTLB_PGALLOC] = "stat-htlb-pgalloc",
+    [VIRTIO_BALLOON_S_HTLB_PGFAIL] = "stat-htlb-pgfail",
+-   [VIRTIO_BALLOON_S_NR] = NULL
++
++   [VIRTIO_BALLOON_S_OOM_KILL] = "stat-oom-kills",
++   [VIRTIO_BALLOON_S_ALLOC_STALL] = "stat-alloc-stalls",
++   [VIRTIO_BALLOON_S_ASYNC_SCAN] = "stat-async-scans",
++   [VIRTIO_BALLOON_S_DIRECT_SCAN] = "stat-direct-scans",
++   [VIRTIO_BALLOON_S_ASYNC_RECLAIM] = "stat-async-reclaims",
++
++   [VIRTIO_BALLOON_S_DIRECT_RECLAIM] = "stat-direct-reclaims",
+ };
++G_STATIC_ASSERT(G_N_ELEMENTS(balloon_stat_names) == VIRTIO_BALLOON_S_NR);
+ 
+ /*
+  * reset_stats - Mark all items in the stats array as unset
+-- 
+2.46.0
+
