@@ -179,6 +179,13 @@
 %define have_qatzip 1
 %endif
 
+%global have_libcbor 1
+%if 0%{?rhel}
+# libcbor missing on centos stream 9
+%global have_libcbor 0
+%endif
+
+
 # LTO still has issues with qemu on armv7hl and aarch64
 # https://bugzilla.redhat.com/show_bug.cgi?id=1952483
 %global _lto_cflags %{nil}
@@ -605,8 +612,10 @@ BuildRequires: python-tomli
 # --enable-qatzip
 BuildRequires: qatzip-devel
 %endif
+%if %{have_libcbor}
 # --enable-libcbor
 BuildRequires: libcbor-devel
+%endif
 
 %if %{user_static}
 BuildRequires: glibc-static
@@ -1769,7 +1778,9 @@ run_configure \
 %endif
   --enable-kvm \
   --enable-l2tpv3 \
+%if %{have_libcbor}
   --enable-libcbor \
+%endif
   --enable-libiscsi \
 %if %{have_pmem}
   --enable-libpmem \
