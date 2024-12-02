@@ -136,7 +136,7 @@
 
 # Matches edk2.spec ExclusiveArch
 %global have_edk2 0
-%ifarch %{ix86} x86_64 %{arm} aarch64 riscv64
+%ifarch %{ix86} x86_64 aarch64 riscv64
 %global have_edk2 1
 %endif
 
@@ -374,7 +374,7 @@ Obsoletes: sgabios-bin <= 1:0.20180715git-10.fc38
 %endif
 
 # To prevent rpmdev-bumpspec breakage
-%global baserelease 0.2
+%global baserelease 0.3
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
@@ -1278,9 +1278,8 @@ This package provides the QEMU system emulator for ARM systems.
 %package system-arm-core
 Summary: QEMU system emulator for ARM
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
-%if %{have_edk2}
-Requires: edk2-arm
-%endif
+# Drop the next line in Fedora >= 44.
+Obsoletes: edk2-arm <= 20241117-2.fc42
 %description system-arm-core
 This package provides the QEMU system emulator for ARM boards.
 
@@ -3147,6 +3146,9 @@ useradd -r -u 107 -g qemu -G kvm -d / -s /sbin/nologin \
 
 
 %changelog
+* Mon Dec 02 2024 Richard W.M. Jones <rjones@redhat.com> - 9.2.0-0.3.rc1
+- Remove edk2 dependency on arm (32 bit) (RHBZ#2329331)
+
 * Fri Nov 29 2024 Daniel P. Berrangé <berrange@redhat.com> - 9.2.0-0.2.rc1
 - Fix crash querying virtio-balloon stats
 
