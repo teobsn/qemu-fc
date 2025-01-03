@@ -11,20 +11,20 @@
 %global usbredir_version 0.7.1
 %global ipxe_version 20200823-5.git4bd064de
 
-%define have_vmsr_helper 0
+%global have_vmsr_helper 0
 %global have_memlock_limits 0
 %global need_qemu_kvm 0
 %ifarch %{ix86}
 %global kvm_package   system-x86
 # need_qemu_kvm should only ever be used by x86
 %global need_qemu_kvm 1
-%define have_vmsr_helper 1
+%global have_vmsr_helper 1
 %endif
 %ifarch x86_64
 %global kvm_package   system-x86
 # need_qemu_kvm should only ever be used by x86
 %global need_qemu_kvm 1
-%define have_vmsr_helper 1
+%global have_vmsr_helper 1
 %endif
 %ifarch %{power64}
 %global have_memlock_limits 1
@@ -135,9 +135,9 @@
 
 
 # All modules should be listed here.
-%define have_block_rbd 1
+%global have_block_rbd 1
 %ifarch %{ix86} %{arm}
-%define have_block_rbd 0
+%global have_block_rbd 0
 %endif
 
 %global have_block_iscsi 1
@@ -151,31 +151,31 @@
 %global have_block_gluster 0
 %endif
 
-%define have_block_nfs 0
+%global have_block_nfs 0
 %if 0%{?fedora}
-%define have_block_nfs 1
+%global have_block_nfs 1
 %endif
 
-%define have_librdma 1
+%global have_librdma 1
 %ifarch %{arm}
-%define have_librdma 0
+%global have_librdma 0
 %endif
 
-%define have_libcacard 1
+%global have_libcacard 1
 %if 0%{?rhel} >= 9
-%define have_libcacard 0
+%global have_libcacard 0
 %endif
 
-%define have_rutabaga_gfx 0
+%global have_rutabaga_gfx 0
 %if 0%{?fedora} >= 40
 %ifarch x86_64 aarch64
-%define have_rutabaga_gfx 1
+%global have_rutabaga_gfx 1
 %endif
 %endif
 
-%define have_qatzip 0
+%global have_qatzip 0
 %ifarch x86_64
-%define have_qatzip 1
+%global have_qatzip 1
 %endif
 
 %global have_libcbor 1
