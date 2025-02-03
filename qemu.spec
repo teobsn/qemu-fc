@@ -2167,6 +2167,12 @@ export MTESTARGS="--no-suite block"
 %if !%{tools_only}
 
 pushd %{qemu_kvm_build}
+
+# Quick sanity check, as it'll give easier to debug failures
+# than we see with 'make check'
+./qemu-system-x86_64 -help
+./qemu-img -help
+
 echo "Testing %{name}-build"
 # ppc64le random qtest segfaults with no discernable pattern
 #   Last check: 2023-10
