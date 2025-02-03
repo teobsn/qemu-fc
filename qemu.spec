@@ -438,6 +438,8 @@ Patch: schedattr.patch
 Patch: 0001-crypto-fix-bogus-error-benchmarking-pbkdf-on-fast-ma.patch
 # https://lists.nongnu.org/archive/html/qemu-block/2025-01/msg00480.html
 Patch: 0001-nfs-Add-support-for-libnfs-v2-api.patch
+# Upstream code has changed so will have different patch
+Patch: 0001-tests-functional-skip-mem-addr-test-on-32-bit-hosts.patch
 
 BuildRequires: gnupg2
 BuildRequires: meson >= %{meson_version}
@@ -2178,11 +2180,7 @@ echo "Testing %{name}-build"
 #   Last check: 2023-10
 #   Added: 2022-06
 #
-# i686 test failing as of qemu-9.2.0-rcX. Discussed here:
-# https://src.fedoraproject.org/rpms/qemu/pull-request/71
-# Decided to disable i686 tests entirely, en route to fully
-# removing i686 support in the future
-%ifnarch %{power64} %{ix86}
+%ifnarch %{power64}
 %make_build check TIMEOUT_MULTIPLIER=%{timeout_multiplier}
 %endif
 
