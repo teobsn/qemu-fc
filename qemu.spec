@@ -2175,13 +2175,49 @@ pushd %{qemu_kvm_build}
 ./qemu-system-x86_64 -help
 ./qemu-img -help
 
+# Now run the test suites, ordered from simplest (and thus
+# hopefully least likely to fail) to complicated (and thus
+# probably more likely to fail). This also lets us selectively
+# disable just a subset of testing when we have issues with
+# certain build platform architectures
 echo "Testing %{name}-build"
-# ppc64le random qtest segfaults with no discernable pattern
-#   Last check: 2023-10
-#   Added: 2022-06
+
+echo "######## unit tests ########"
+%make_build check-unit
+
+echo "######## QAPI schema tests ########"
+%make_build check-qapi-schema
+
+echo "######## DecodeTree tests ########"
+%make_build check-decodetree
+
+echo "######## Soft Float tests ########"
+%make_build check-softfloat
+
+echo "######## QTest tests ########"
+# 2025/02/03: ppc64le hosts often abort in one or more of
+# these tests for unknown reasons. eg
 #
-%ifnarch %{power64}
-%make_build check TIMEOUT_MULTIPLIER=%{timeout_multiplier}
+#    3/606 qemu:qtest+qtest-riscv64 / qtest-riscv64/bios-tables-test ERROR   3.52s   killed by signal 6 SIGABRT
+#  102/606 qemu:qtest+qtest-x86_64 / qtest-x86_64/migration-test     ERROR 108.91s   killed by signal 6 SIGABRT
+#  155/606 qemu:qtest+qtest-aarch64 / qtest-aarch64/qos-test         ERROR  50.14s   killed by signal 6 SIGABRT
+#  593/606 qemu:qtest+qtest-x86_64 / qtest-x86_64/modules-test       ERROR   0.74s   killed by signal 6 SIGABRT
+%ifnarch ppc64le
+%make_build check-qtest TIMEOUT_MULTIPLIER=%{timeout_multiplier}
+%endif
+
+echo "######## Block I/O tests ########"
+%make_build check-block TIMEOUT_MULTIPLIER=%{timeout_multiplier}
+
+echo "######## Functional tests ########"
+# 2025/02/03: ppc64le hosts often fail one or more functional tests
+# for unknown reasons. eg
+#
+#  3/95 qemu:func-quick+func-riscv32 / func-riscv32-riscv_opensbi  ERROR 1.63s   exit status 1
+# 57/95 qemu:func-quick+func-riscv64 / func-riscv64-riscv_opensbi  ERROR 1.75s   exit status 1
+%ifnarch ppc64le
+# 'check-func-quick' instead of 'check-functional' to avoid asset download
+%make_build check-func-quick TIMEOUT_MULTIPLIER=%{timeout_multiplier}
 %endif
 
 popd
