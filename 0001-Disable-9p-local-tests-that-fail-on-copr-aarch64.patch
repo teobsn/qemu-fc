@@ -1,7 +1,7 @@
-From 63d3792ebe5202121526d5a2077eb42e16f53b79 Mon Sep 17 00:00:00 2001
+From 22e852dae425014c4bc511ab4dc7c7f9c0752eb3 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Mon, 26 Aug 2024 14:06:14 -0400
-Subject: [PATCH] Disable 9p `local` tests that fail on copr aarch64
+Subject: [PATCH 1/8] Disable 9p `local` tests that fail on copr aarch64
 
 Upstream issue:
 https://gitlab.com/qemu-project/qemu/-/issues/2541
@@ -32,5 +32,5 @@ index ab3a12c816..261b0c17f1 100644
  
  libqos_init(register_virtio_9p_test);
 -- 
-2.46.0
+2.48.1
 

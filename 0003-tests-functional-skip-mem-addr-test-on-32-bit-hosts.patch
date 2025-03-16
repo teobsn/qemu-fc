@@ -1,7 +1,7 @@
-From 84ea519aecbecad6970fab452295c118041e52d7 Mon Sep 17 00:00:00 2001
+From e2466716460bcd06cc8923c4363a3960b6599475 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Daniel=20P=2E=20Berrang=C3=A9?= <berrange@redhat.com>
 Date: Mon, 3 Feb 2025 10:36:04 +0000
-Subject: [PATCH] tests/functional: skip mem addr test on 32-bit hosts
+Subject: [PATCH 3/8] tests/functional: skip mem addr test on 32-bit hosts
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -157,5 +157,5 @@ index bb0cf062ca..ac76fa9c48 100755
          """
          Same as above but here we do not reserve any cxl memory window. Hence,
 -- 
-2.47.1
+2.48.1
 

@@ -1,16 +1,15 @@
-From d5689766da7a166a7c6cda5b808fea127f7b845a Mon Sep 17 00:00:00 2001
+From 379565f41b2b2ddf50c162a917405244d2f992f2 Mon Sep 17 00:00:00 2001
 From: Ronnie Sahlberg <ronniesahlberg@gmail.com>
 Date: Sun, 26 Jan 2025 12:59:45 +1000
-Subject: [PATCH] nfs: Add support for libnfs v2 api
+Subject: [PATCH 2/8] nfs: Add support for libnfs v2 api
 
 Signed-off-by: Ronnie Sahlberg <ronniesahlberg@gmail.com>
 ---
  block/nfs.c | 15 ++++++++++++++-
- meson.build |  2 +-
- 2 files changed, 15 insertions(+), 2 deletions(-)
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/block/nfs.c b/block/nfs.c
-index 7d34b58750..163e126b11 100644
+index 0500f60c08..f768ee0c4b 100644
 --- a/block/nfs.c
 +++ b/block/nfs.c
 @@ -268,11 +268,18 @@ static int coroutine_fn nfs_co_preadv(BlockDriverState *bs, int64_t offset,
@@ -50,5 +49,5 @@ index 7d34b58750..163e126b11 100644
                  g_free(buf);
              }
 -- 
-2.47.1
+2.48.1
 

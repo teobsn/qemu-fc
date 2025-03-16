@@ -1,7 +1,7 @@
-From 1887cf2368189087fdf977fb8d09b5ad47cc7aea Mon Sep 17 00:00:00 2001
+From 69213f856604549c4bf21e4c77707493577e6bc1 Mon Sep 17 00:00:00 2001
 From: Andrea Bolognani <abologna@redhat.com>
 Date: Mon, 27 Jan 2025 19:29:24 +0100
-Subject: [PATCH 3/3] binfmt: Add --ignore-family option
+Subject: [PATCH 6/8] binfmt: Add --ignore-family option
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

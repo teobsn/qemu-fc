@@ -1,7 +1,8 @@
-From 9976be3911a2d0503f026ae37c17077273bf30ee Mon Sep 17 00:00:00 2001
+From a3c47231f4244b189dd09fa4bff31ebbcfd5b102 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Daniel=20P=2E=20Berrang=C3=A9?= <berrange@redhat.com>
 Date: Fri, 6 Dec 2024 11:45:24 +0000
-Subject: [PATCH] scripts: improve error from qemu-trace-stap on missing 'stap'
+Subject: [PATCH 7/8] scripts: improve error from qemu-trace-stap on missing
+ 'stap'
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

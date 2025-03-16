@@ -1,7 +1,7 @@
-From 2770a46b20b7ccd23019a7b6b6631de933b53c8e Mon Sep 17 00:00:00 2001
+From eac77fbbdfd0b87bc6971eb3dccc1e1ed7596ea3 Mon Sep 17 00:00:00 2001
 From: Andrea Bolognani <abologna@redhat.com>
 Date: Mon, 27 Jan 2025 19:29:23 +0100
-Subject: [PATCH 2/3] binfmt: Normalize host CPU architecture
+Subject: [PATCH 5/8] binfmt: Normalize host CPU architecture
 
 Right now information regarding the family each CPU type belongs
 to is recorded in two places: the large data table at the top of
