@@ -717,6 +717,7 @@ This package does not need to be installed on the host OS.
 %package tools
 Summary: %{name} support tools
 Recommends: systemtap-client
+Recommends: systemtap-devel
 %description tools
 %{name}-tools provides various tools related to %{name} usage.
 
