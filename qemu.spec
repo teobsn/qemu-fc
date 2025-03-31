@@ -129,6 +129,7 @@
 %global have_gvnc_devel %{defined fedora}
 %global have_sdl_image %{defined fedora}
 %global have_brlapi 1
+%global have_daxctl 1
 %global have_fdt 1
 %global have_opengl 1
 %global have_usbredir 1
@@ -600,8 +601,10 @@ BuildRequires: liburing-devel
 BuildRequires: libzstd-devel
 # `hostname` used by test suite
 BuildRequires: hostname
+%if %{have_daxctl}
 # nvdimm dax
 BuildRequires: daxctl-devel
+%endif
 # fuse block device
 BuildRequires: fuse-devel
 %if %{have_jack}
@@ -1876,7 +1879,9 @@ run_configure \
 %endif
   --enable-gtk \
   --enable-hv-balloon \
+%if %{have_daxctl}
   --enable-libdaxctl \
+%endif
   --enable-libdw \
   --enable-libkeyutils \
 %if %{have_block_nfs}
