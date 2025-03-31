@@ -131,6 +131,7 @@
 %global have_brlapi 1
 %global have_daxctl 1
 %global have_fdt 1
+%global have_multipath 1
 %global have_opengl 1
 %global have_usbredir 1
 %global enable_werror 0
@@ -509,9 +510,11 @@ BuildRequires: lzo-devel snappy-devel
 %if %{have_numactl}
 BuildRequires: numactl-devel
 %endif
+%if %{have_multipath}
 # qemu-pr-helper multipath support (requires libudev too)
 BuildRequires: device-mapper-multipath-devel
 BuildRequires: systemd-devel
+%endif
 %if %{have_pmem}
 BuildRequires: libpmem-devel
 %endif
@@ -1815,7 +1818,9 @@ run_configure \
   --enable-lzo \
   --enable-malloc-trim \
   --enable-modules \
+%if %{have_multipath}
   --enable-mpath \
+%endif
 %if %{have_numactl}
   --enable-numa \
 %endif
