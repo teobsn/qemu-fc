@@ -128,6 +128,7 @@
 
 %global have_gvnc_devel %{defined fedora}
 %global have_sdl_image %{defined fedora}
+%global have_brlapi 1
 %global have_fdt 1
 %global have_opengl 1
 %global have_usbredir 1
@@ -235,7 +236,13 @@
 %define requires_audio_pa Requires: %{name}-audio-pa = %{evr}
 %define requires_audio_pipewire Requires: %{name}-audio-pipewire = %{evr}
 %define requires_audio_sdl Requires: %{name}-audio-sdl = %{evr}
+%if %{have_brlapi}
 %define requires_char_baum Requires: %{name}-char-baum = %{evr}
+%define obsoletes_char_baum %{nil}
+%else
+%define requires_char_baum %{nil}
+%define obsoletes_char_baum Obsoletes: %{name}-char-baum < %{evr}
+%endif
 %define requires_device_usb_host Requires: %{name}-device-usb-host = %{evr}
 %define requires_device_usb_redirect Requires: %{name}-device-usb-redirect = %{evr}
 %define requires_ui_curses Requires: %{name}-ui-curses = %{evr}
@@ -366,6 +373,7 @@
 %{obsoletes_block_gluster} \
 %{obsoletes_block_rbd} \
 %{obsoletes_block_iscsi} \
+%{obsoletes_char_baum} \
 %{obsoletes_package_virtiofsd} \
 %{obsoletes_package_kvm} \
 Obsoletes: %{name}-system-cris <= %{epoch}:%{version}-%{release} \
@@ -549,8 +557,10 @@ BuildRequires: spice-server-devel
 %endif
 # VNC JPEG support
 BuildRequires: libjpeg-devel
+%if %{have_brlapi}
 # Braille device support
 BuildRequires: brlapi-devel
+%endif
 %if %{have_block_gluster}
 # gluster block driver
 BuildRequires: glusterfs-api-devel
@@ -918,11 +928,13 @@ Requires: %{name}-ui-opengl%{?_isa} = %{epoch}:%{version}-%{release}
 This package provides the additional egl-headless UI for QEMU.
 
 
+%if %{have_brlapi}
 %package  char-baum
 Summary: QEMU Baum chardev driver
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
 %description char-baum
 This package provides the Baum chardev driver for QEMU.
+%endif
 
 
 %package device-display-virtio-gpu
@@ -1850,7 +1862,9 @@ run_configure \
   --with-default-devices \
   --enable-auth-pam \
   --enable-bochs \
+%if %{have_brlapi}
   --enable-brlapi \
+%endif
   --enable-bzip2 \
   --enable-cloop \
   --enable-curses \
@@ -2523,8 +2537,10 @@ popd
 %files ui-egl-headless
 %{_libdir}/%{name}/ui-egl-headless.so
 
+%if %{have_brlapi}
 %files char-baum
 %{_libdir}/%{name}/chardev-baum.so
+%endif
 
 
 %files device-display-virtio-gpu
