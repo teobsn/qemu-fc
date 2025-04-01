@@ -53,6 +53,7 @@
 
 %global tools_only 0
 
+%global user_dynamic 1
 %global user_static 1
 %if 0%{?rhel}
 # EPEL/RHEL do not have required -static builddeps
@@ -658,7 +659,9 @@ BuildRequires: libatomic-static
 
 
 # Requires for the Fedora 'qemu' metapackage
+%if %{user_dynamic}
 Requires: %{name}-user = %{epoch}:%{version}-%{release}
+%endif
 Requires: %{name}-system-aarch64 = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-alpha = %{epoch}:%{version}-%{release}
 Requires: %{name}-system-arm = %{epoch}:%{version}-%{release}
@@ -1116,6 +1119,7 @@ x86 system, this will install qemu-system-x86-core
 %endif
 
 
+%if %{user_dynamic}
 %package user
 Summary: QEMU user mode emulation of qemu targets
 Requires: %{name}-common = %{epoch}:%{version}-%{release}
@@ -1135,6 +1139,7 @@ Requires(postun): systemd-units
 #Conflicts: qemu-user-static
 %description user-binfmt
 This package provides the user mode emulation of qemu targets
+%endif
 
 %if %{user_static}
 %package user-static
@@ -1255,7 +1260,6 @@ Summary: QEMU user mode emulation of sh4 qemu targets static build
 %description user-static-sh4
 This package provides the sh4 user mode emulation of qemu targets built as
 static binaries
-%endif
 
 %package user-static-sparc
 Summary: QEMU user mode emulation of sparc qemu targets static build
@@ -1274,6 +1278,7 @@ Summary: QEMU user mode emulation of xtensa qemu targets static build
 %description user-static-xtensa
 This package provides the xtensa user mode emulation of qemu targets built as
 static binaries
+%endif
 
 
 %package system-aarch64
@@ -1900,7 +1905,9 @@ run_configure \
 %if %{have_liburing}
   --enable-linux-io-uring \
 %endif
+%if %{user_dynamic}
   --enable-linux-user \
+%endif
   --enable-multiprocess \
   --enable-parallels \
 %if %{have_qatzip}
@@ -2138,6 +2145,7 @@ ln -sf qemu-system-x86_64 %{buildroot}%{_bindir}/qemu-kvm
 
 
 # Install binfmt
+%if %{user_dynamic}
 %global binfmt_dir %{buildroot}%{_exec_prefix}/lib/binfmt.d
 mkdir -p %{binfmt_dir}
 
@@ -2151,6 +2159,7 @@ mkdir -p %{binfmt_dir}
 
 ./scripts/qemu-binfmt-conf.sh %{?ignore_family} --systemd ALL --exportdir %{binfmt_dir} --qemu-path %{_bindir}
 for i in %{binfmt_dir}/*; do mv $i $(echo $i | sed 's/.conf/-dynamic.conf/'); done
+%endif
 
 
 # Install qemu-user-static tree
@@ -2285,10 +2294,12 @@ popd
 
 
 
+%if %{user_dynamic}
 %post user-binfmt
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
 %postun user-binfmt
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
+%endif
 
 %if %{user_static}
 %post user-static-aarch64
@@ -2360,7 +2371,6 @@ popd
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
 %postun user-static-sh4
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
-%endif
 
 %post user-static-sparc
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
@@ -2376,6 +2386,7 @@ popd
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
 %postun user-static-xtensa
 /bin/systemctl --system try-restart systemd-binfmt.service &>/dev/null || :
+%endif
 
 # endif !tools_only
 %endif
@@ -2629,6 +2640,7 @@ popd
 %endif
 
 
+%if %{user_dynamic}
 %files user
 %{_bindir}/qemu-i386
 %{_bindir}/qemu-x86_64
@@ -2767,6 +2779,7 @@ popd
 
 %files user-binfmt
 %{_exec_prefix}/lib/binfmt.d/qemu-*-dynamic.conf
+%endif
 
 %if %{user_static}
 %files user-static
