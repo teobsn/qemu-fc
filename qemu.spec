@@ -189,6 +189,28 @@
 %global have_libcbor 0
 %endif
 
+%if %{defined flatpak}
+%global user_dynamic 0
+%global user_static 0
+%global have_numactl 0
+%global have_xen 0
+%global have_liburing 0
+%global have_pmem 0
+%global have_libblkio 0
+%global have_brlapi 0
+%global have_daxctl 0
+%global have_multipath 0
+%global have_xdp 0
+%global have_block_gluster 0
+%global have_block_iscsi 0
+%global have_block_rbd 0
+%global have_block_nfs 0
+%global have_librdma 0
+%global have_libcacard 0
+%global have_qatzip 0
+%global have_libcbor 0
+%endif
+
 
 # LTO still has issues with qemu on armv7hl and aarch64
 # https://bugzilla.redhat.com/show_bug.cgi?id=1952483
