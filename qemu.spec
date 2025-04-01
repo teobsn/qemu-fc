@@ -134,6 +134,7 @@
 %global have_multipath 1
 %global have_opengl 1
 %global have_usbredir 1
+%global have_xdp 1
 %global enable_werror 0
 
 
@@ -626,8 +627,10 @@ BuildRequires: pkgconfig(gvnc-1.0)
 BuildRequires: pipewire-devel
 # Used by cryptodev-backend-lkcf
 BuildRequires: keyutils-libs-devel
+%if %{have_xdp}
 # Used by net AF_XDP
 BuildRequires: libxdp-devel
+%endif
 # used by virtio-gpu-rutabaga
 %if %{have_rutabaga_gfx}
 BuildRequires: rutabaga-gfx-ffi-devel
@@ -1767,7 +1770,9 @@ run_configure \
 %if %{defined block_drivers_ro_list}
   --block-drv-ro-whitelist=%{block_drivers_ro_list} \
 %endif
+%if %{have_xdp}
   --enable-af-xdp \
+%endif
   --enable-alsa \
   --enable-attr \
 %ifarch %{ix86} x86_64
