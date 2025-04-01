@@ -680,9 +680,6 @@ Summary: QEMU common files needed by all QEMU targets
 Requires(post): /usr/bin/getent
 Requires(post): /usr/sbin/groupadd
 Requires(post): /usr/sbin/useradd
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
 %{obsoletes_some_modules}
 Requires: ipxe-roms-qemu >= %{ipxe_version}
 %description common
@@ -707,9 +704,6 @@ This package provides a command line tool for manipulating disk images.
 
 %package -n qemu-guest-agent
 Summary: QEMU guest agent
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
 %description -n qemu-guest-agent
 %{name} is an open source virtualizer that provides hardware emulation for
 the KVM hypervisor.
