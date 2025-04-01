@@ -801,9 +801,8 @@ the Secure Shell (SSH) protocol.
 %package  ui-opengl
 Summary: QEMU opengl support
 Requires: %{name}-common%{?_isa} = %{epoch}:%{version}-%{release}
-Requires: mesa-libGL
-Requires: mesa-libEGL
-Requires: mesa-dri-drivers
+Requires: libGL
+Requires: libEGL
 %description ui-opengl
 This package provides opengl support.
 %endif
