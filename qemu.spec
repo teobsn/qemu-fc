@@ -419,9 +419,10 @@ Name: qemu
 Version: 9.2.4
 
 # Set for release candidate builds
-#global rcstr rc0
-%if 0%{?rcstr:1}
-Release: %autorelease -p -e %{rcstr}
+# global rcver rc0
+%if 0%{?rcver:1}
+%global rcstr -%{rcver}
+Release: %autorelease -p -e %{rcver}
 %else
 Release: %autorelease
 %endif
