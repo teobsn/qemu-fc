@@ -483,6 +483,10 @@ Patch: 0008-Revert-meson.build-Disallow-libnfs-v6-to-fix-the-bro.patch
 # Remove hppa-firmware* execute bit to make rpmbuild happy.
 # Submitted upstream 2025-05-18
 Patch: 0001-roms-remove-execute-bit-from-hppa-firmware.patch
+# Fix for Python 3.14 event loop changes
+# https://bugzilla.redhat.com/show_bug.cgi?id=2375004
+# Will send upstream today 2025-07-15
+Patch: 0001-python-Replace-asyncio.get_event_loop-for-Python-3.1.patch
 
 
 BuildRequires: gnupg2
