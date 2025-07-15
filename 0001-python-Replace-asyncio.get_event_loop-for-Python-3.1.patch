@@ -1,4 +1,4 @@
-From 8801047e2be4b9efefa7d5b5c9bce0d5f8d15d5f Mon Sep 17 00:00:00 2001
+From 6307d828a3dd58cd8f7b6ef09f5c1b7df087d7c7 Mon Sep 17 00:00:00 2001
 From: "Richard W.M. Jones" <rjones@redhat.com>
 Date: Tue, 15 Jul 2025 11:42:31 +0100
 Subject: [PATCH] python: Replace asyncio.get_event_loop for Python 3.14
@@ -12,14 +12,14 @@ as well.  This is a mechanical change as suggested here:
 
 https://bugzilla.redhat.com/show_bug.cgi?id=2375004#c4
 
+See-also: https://docs.python.org/3.14/whatsnew/3.14.html#id7
 Thanks: Miro Hrončok
 Signed-off-by: Richard W.M. Jones <rjones@redhat.com>
 ---
  python/qemu/qmp/legacy.py  | 5 ++++-
  python/qemu/qmp/qmp_tui.py | 5 ++++-
- python/qemu/qmp/util.py    | 5 ++++-
  python/tests/protocol.py   | 5 ++++-
- 4 files changed, 16 insertions(+), 4 deletions(-)
+ 3 files changed, 12 insertions(+), 3 deletions(-)
 
 diff --git a/python/qemu/qmp/legacy.py b/python/qemu/qmp/legacy.py
 index 22a2b5616e..e11d05afbd 100644
@@ -53,22 +53,6 @@ index 2d9ebbd20b..84c5da4e66 100644
          self.aloop.set_debug(debug)
  
          # Gracefully handle SIGTERM and SIGINT signals
-diff --git a/python/qemu/qmp/util.py b/python/qemu/qmp/util.py
-index ca6225e9cd..8f9f849a5f 100644
---- a/python/qemu/qmp/util.py
-+++ b/python/qemu/qmp/util.py
-@@ -160,7 +160,10 @@ def asyncio_run(coro: Coroutine[Any, Any, T], *, debug: bool = False) -> T:
-         return asyncio.run(coro, debug=debug)
- 
-     # Python 3.6
--    loop = asyncio.get_event_loop()
-+    try:
-+        loop = asyncio.get_event_loop()
-+    except RuntimeError:
-+        loop = asyncio.new_event_loop()
-     loop.set_debug(debug)
-     ret = loop.run_until_complete(coro)
-     loop.close()
 diff --git a/python/tests/protocol.py b/python/tests/protocol.py
 index 56c4d441f9..aa7c0e4397 100644
 --- a/python/tests/protocol.py
