@@ -485,8 +485,11 @@ Patch: 0008-Revert-meson.build-Disallow-libnfs-v6-to-fix-the-bro.patch
 Patch: 0001-roms-remove-execute-bit-from-hppa-firmware.patch
 # Fix for Python 3.14 event loop changes
 # https://bugzilla.redhat.com/show_bug.cgi?id=2375004
-# Will send upstream today 2025-07-15
+# Sent upstream 2025-07-15
 Patch: 0001-python-Replace-asyncio.get_event_loop-for-Python-3.1.patch
+# qemu:func-quick+func-hppa test is unstable
+# Upstream 4b1f5b73e0
+Patch: 0001-tests-functional-Use-no-shutdown-in-the-hppa_seabios.patch
 
 
 BuildRequires: gnupg2
