@@ -572,7 +572,10 @@ BuildRequires: libbpf-devel >= 1.0.0
 %if %{have_libblkio}
 BuildRequires: libblkio-devel
 %endif
-
+# For coroutine debugging
+%ifarch %{valgrind_arches}
+BuildRequires: valgrind-devel
+%endif
 
 # Fedora specific
 %if "%{toolchain}" == "clang"
@@ -2003,6 +2006,9 @@ run_configure \
 %if %{have_spice}
   --enable-spice \
   --enable-spice-protocol \
+%endif
+%ifarch %{valgrind_arches}
+  --enable-valgrind \
 %endif
   --enable-vdi \
   --enable-vhost-crypto \
