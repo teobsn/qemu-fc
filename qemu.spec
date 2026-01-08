@@ -497,7 +497,8 @@ Patch: 0008-Revert-meson.build-Disallow-libnfs-v6-to-fix-the-bro.patch
 # Increase test-replication timeout
 # NOT upstream, but see https://gitlab.com/qemu-project/qemu/-/issues/3035
 Patch: 0002-TEMPORARY-increase-test-timeout.patch
-
+# https://lists.nongnu.org/archive/html/qemu-devel/2026-01/msg01140.html
+Patch: 0001-meson-disable-libatomic-with-GCC-16.patch
 
 BuildRequires: gnupg2
 BuildRequires: meson >= %{meson_version}
