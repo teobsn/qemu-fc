@@ -698,8 +698,6 @@ BuildRequires: igvm-devel
 BuildRequires: glibc-static
 BuildRequires: glib2-static
 BuildRequires: zlib-static
-# -latomic added by GLib 2.81.0, 2024-06-28
-BuildRequires: libatomic-static
 %endif
 
 
