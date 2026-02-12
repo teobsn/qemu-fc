@@ -494,6 +494,8 @@ Patch: 0008-Revert-meson.build-Disallow-libnfs-v6-to-fix-the-bro.patch
 # Increase test-replication timeout
 # NOT upstream, but see https://gitlab.com/qemu-project/qemu/-/issues/3035
 Patch: 0002-TEMPORARY-increase-test-timeout.patch
+# https://lore.kernel.org/qemu-devel/c508fc1d4a4ccd8c9fb1e51b71df089e31115a53.1770309998.git.jpoimboe@kernel.org/
+Patch: 0009-hw-i386-vm-vmmouse-Fix-hypercall-clobbers.patch
 
 
 BuildRequires: gnupg2
