@@ -14,12 +14,6 @@
 %global have_vmsr_helper 0
 %global have_memlock_limits 0
 %global need_qemu_kvm 0
-%ifarch %{ix86}
-%global kvm_package   system-x86
-# need_qemu_kvm should only ever be used by x86
-%global need_qemu_kvm 1
-%global have_vmsr_helper 1
-%endif
 %ifarch x86_64
 %global kvm_package   system-x86
 # need_qemu_kvm should only ever be used by x86
@@ -47,7 +41,7 @@
 %ifarch s390x
     %global modprobe_kvm_conf %{_sourcedir}/kvm-s390x.conf
 %endif
-%ifarch %{ix86} x86_64
+%ifarch x86_64
     %global modprobe_kvm_conf %{_sourcedir}/kvm-x86.conf
 %endif
 
@@ -68,15 +62,10 @@
 %define obsoletes_package_kvm Obsoletes: %{name}-kvm < %{evr}
 %endif
 
-# Matches numactl ExcludeArch
 %global have_numactl 1
-%ifarch %{arm}
-%global have_numactl 0
-%endif
 
-# Matches spice ExclusiveArch
 %global have_spice 1
-%ifnarch %{ix86} x86_64 %{arm} aarch64
+%ifnarch x86_64 aarch64
 %global have_spice 0
 %endif
 %if 0%{?rhel} >= 9
@@ -93,9 +82,7 @@
 
 %global have_liburing 0
 %if 0%{?fedora}
-%ifnarch %{arm}
 %global have_liburing 1
-%endif
 %endif
 
 %global have_virgl 0
@@ -133,9 +120,6 @@
 
 # All modules should be listed here.
 %global have_block_rbd 1
-%ifarch %{ix86} %{arm}
-%global have_block_rbd 0
-%endif
 
 %global have_block_iscsi 1
 %if 0%{?rhel} >= 10
@@ -154,9 +138,6 @@
 %endif
 
 %global have_librdma 1
-%ifarch %{arm}
-%global have_librdma 0
-%endif
 
 %global have_libcacard 1
 %if 0%{?rhel} >= 9
@@ -288,17 +269,12 @@
 %define requires_device_display_virtio_vga Requires: %{name}-device-display-virtio-vga = %{evr}
 %define requires_package_qemu_pr_helper Requires: qemu-pr-helper
 %define requires_package_passt Requires: passt
-%ifnarch %{ix86}
 %if 0%{?fedora} || 0%{?rhel} > 9
 %define requires_package_virtiofsd Requires: vhostuser-backend(fs)
 %else
 %define requires_package_virtiofsd Requires: virtiofsd
 %endif
 %define obsoletes_package_virtiofsd %{nil}
-%else
-%define requires_package_virtiofsd %{nil}
-%define obsoletes_package_virtiofsd Obsoletes: %{name}-virtiofsd < %{evr}
-%endif
 
 %if %{have_virgl}
 %define requires_device_display_vhost_user_gpu Requires: %{name}-device-display-vhost-user-gpu = %{evr}
@@ -1781,11 +1757,7 @@ run_configure() {
         --docdir="%{_docdir}" \
         --libexecdir="%{_libexecdir}" \
         --extra-ldflags="%{build_ldflags}" \
-%ifnarch %{arm}
         --extra-cflags="%{optflags}" \
-%else
-        --extra-cflags="%{optflags} -DSTAP_SDT_ARG_CONSTRAINT=g" \
-%endif
         --with-pkgversion="%{name}-%{version}-%{release}" \
         --with-suffix="%{name}" \
         --firmwarepath="%firmwaredirs" \
@@ -3039,8 +3011,6 @@ popd
 %{_datadir}/systemtap/tapset/qemu-x86_64-static.stp
 %ifnarch x86_64
 %{_exec_prefix}/lib/binfmt.d/qemu-x86_64-static.conf
-%endif
-%ifnarch %{ix86} x86_64
 %{_exec_prefix}/lib/binfmt.d/qemu-i386-static.conf
 %{_exec_prefix}/lib/binfmt.d/qemu-i486-static.conf
 %endif
