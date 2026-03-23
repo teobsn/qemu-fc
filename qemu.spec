@@ -196,6 +196,11 @@
 %endif
 %endif
 
+%global have_nitro 0
+%ifarch x86_64 aarch64
+%global have_nitro 1
+%endif
+
 %if %{defined flatpak}
 %global user_dynamic 0
 %global user_static 0
@@ -427,10 +432,10 @@ Obsoletes: sgabios-bin <= 1:0.20180715git-10.fc38
 
 Summary: QEMU is a FAST! processor emulator
 Name: qemu
-Version: 10.2.1
+Version: 11.0.0
 
 # Set for release candidate builds
-#global rcver rc4
+%global rcver rc0
 %if 0%{?rcver:1}
 %global rcstr -%{rcver}
 Release: %autorelease -p -e %{rcver}
@@ -482,16 +487,9 @@ Source37: qemu.sysusers
 # Skip failing test in copr
 # https://gitlab.com/qemu-project/qemu/-/issues/2541
 Patch: 0001-Disable-9p-local-tests-that-fail-on-copr-aarch64.patch
-# https://lists.nongnu.org/archive/html/qemu-block/2025-01/msg00480.html
-Patch: 0002-nfs-Add-support-for-libnfs-v2-api.patch
-Patch: 0008-Revert-meson.build-Disallow-libnfs-v6-to-fix-the-bro.patch
 # Increase test-replication timeout
 # NOT upstream, but see https://gitlab.com/qemu-project/qemu/-/issues/3035
 Patch: 0002-TEMPORARY-increase-test-timeout.patch
-# https://lists.nongnu.org/archive/html/qemu-devel/2026-01/msg01140.html
-Patch: 0001-meson-disable-libatomic-with-GCC-16.patch
-# https://lore.kernel.org/qemu-devel/c508fc1d4a4ccd8c9fb1e51b71df089e31115a53.1770309998.git.jpoimboe@kernel.org/
-Patch: 0009-hw-i386-vm-vmmouse-Fix-hypercall-clobbers.patch
 
 BuildRequires: gnupg2
 BuildRequires: meson >= %{meson_version}
@@ -504,6 +502,10 @@ BuildRequires: libselinux-devel
 BuildRequires: cyrus-sasl-devel
 BuildRequires: libaio-devel
 BuildRequires: python3-devel
+BuildRequires: python3-setuptools
+BuildRequires: python3-pip
+BuildRequires: python3-qemu-qmp
+BuildRequires: python3-wheel
 %if %{have_block_iscsi}
 BuildRequires: libiscsi-devel
 %endif
@@ -1716,6 +1718,7 @@ mkdir -p %{static_builddir}
   --disable-mpath                  \\\
   --disable-mshv                   \\\
   --disable-multiprocess           \\\
+  --disable-nitro                  \\\
   --disable-netmap                 \\\
   --disable-nettle                 \\\
   --disable-numa                   \\\
@@ -1972,6 +1975,9 @@ run_configure \
   --enable-linux-user \
 %endif
   --enable-multiprocess \
+%if %{have_nitro}
+  --enable-nitro \
+%endif
   --enable-parallels \
 %if %{have_qatzip}
   --enable-qatzip \
@@ -2580,7 +2586,7 @@ popd
 
 %files tests
 %{testsdir}
-%{_libdir}/%{name}/accel-qtest-*.so
+%{_libdir}/%{name}/accel-qtest.so
 
 %if %{have_libblkio}
 %files block-blkio
@@ -3213,15 +3219,10 @@ popd
 %files system-microblaze
 %files system-microblaze-core
 %{_bindir}/qemu-system-microblaze
-%{_bindir}/qemu-system-microblazeel
 %{_datadir}/systemtap/tapset/qemu-system-microblaze.stp
 %{_datadir}/systemtap/tapset/qemu-system-microblaze-log.stp
 %{_datadir}/systemtap/tapset/qemu-system-microblaze-simpletrace.stp
-%{_datadir}/systemtap/tapset/qemu-system-microblazeel.stp
-%{_datadir}/systemtap/tapset/qemu-system-microblazeel-log.stp
-%{_datadir}/systemtap/tapset/qemu-system-microblazeel-simpletrace.stp
 %{_mandir}/man1/qemu-system-microblaze.1*
-%{_mandir}/man1/qemu-system-microblazeel.1*
 %{_datadir}/%{name}/dtb/petalogix*.dtb
 
 
@@ -3378,8 +3379,6 @@ popd
 %{_datadir}/systemtap/tapset/qemu-system-i386-simpletrace.stp
 %{_mandir}/man1/qemu-system-i386.1*
 %{_datadir}/%{name}/kvmvapic.bin
-%{_datadir}/%{name}/linuxboot.bin
-%{_datadir}/%{name}/multiboot.bin
 %{_datadir}/%{name}/multiboot_dma.bin
 %{_datadir}/%{name}/pvh.bin
 %{_datadir}/%{name}/qboot.rom
