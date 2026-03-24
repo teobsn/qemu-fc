@@ -2479,7 +2479,6 @@ popd
 %dir %{_datadir}/%{name}/vhost-user/
 %{_datadir}/icons/*
 %{_datadir}/%{name}/keymaps/
-%{_datadir}/%{name}/linuxboot_dma.bin
 %attr(4755, -, -) %{_libexecdir}/qemu-bridge-helper
 %dir %{_libdir}/%{name}/
 %{_mandir}/man1/%{name}.1*
@@ -3253,6 +3252,7 @@ popd
 %{_datadir}/systemtap/tapset/qemu-system-i386-simpletrace.stp
 %{_mandir}/man1/qemu-system-i386.1*
 %{_datadir}/%{name}/kvmvapic.bin
+%{_datadir}/%{name}/linuxboot_dma.bin
 %{_datadir}/%{name}/multiboot_dma.bin
 %{_datadir}/%{name}/pvh.bin
 %{_datadir}/%{name}/qboot.rom
