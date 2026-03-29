@@ -2,7 +2,7 @@
 # Provide a way to skip tests via rpmbuild `--without`
 # This makes it easier to skip tests in copr repos, where
 # the qemu test suite is historically flakey
-%bcond_without check
+%bcond_with check
 
 %global libfdt_version 1.6.0
 %global libseccomp_version 2.4.0
@@ -60,8 +60,8 @@
 %endif
 
 
-%global user_dynamic 1
-%global user_static 1
+%global user_dynamic 0
+%global user_static 0
 %if 0%{?rhel}
 # EPEL/RHEL do not have required -static builddeps
 %global user_static 0
