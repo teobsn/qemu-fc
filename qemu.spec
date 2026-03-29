@@ -467,9 +467,6 @@ License: %{shrink:
 }
 URL: http://www.qemu.org/
 
-# Enable source fetch
-%define _disable_source_fetch 0
-
 %global dlurl https://download.qemu.org
 
 Source0: %{dlurl}/%{name}-%{version}%{?rcstr}.tar.xz
