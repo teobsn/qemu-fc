@@ -495,6 +495,8 @@ Patch: 0008-Revert-meson.build-Disallow-libnfs-v6-to-fix-the-bro.patch
 # NOT upstream, but see https://gitlab.com/qemu-project/qemu/-/issues/3035
 Patch: 0002-TEMPORARY-increase-test-timeout.patch
 
+# Custom patches
+Patch: 1001-qemu-spoof.patch
 
 BuildRequires: gnupg2
 BuildRequires: meson >= %{meson_version}
