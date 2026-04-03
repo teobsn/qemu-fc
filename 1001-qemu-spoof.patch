@@ -118,6 +118,90 @@ diff --git a/hw/acpi/pcihp.c b/hw/acpi/pcihp.c
 index 4922bbc..0b96020 100644
 --- a/hw/acpi/pcihp.c
 +++ b/hw/acpi/pcihp.c
+@@ -701,6 +701,83 @@ void build_append_pcihp_resources(Aml *scope /* \\_SB.PCI0 */,
+     aml_append(scope, dev);
+ }
+ 
++/*
++ * Helper to generate "Real Hardware" looking ACPI names.
++ * This removes the "S<hex>" signature and ensures unique naming
++ * for multifunction devices.
++ */
++static void get_mimic_pci_name(char *name, int devfn) {
++    int slot = PCI_SLOT(devfn);
++    int func = PCI_FUNC(devfn);
++
++    switch (slot) {
++        case 0:
++            // Host Bridge is almost always Slot 0, Function 0 (and also bus 0 but we cant access bus number in this context)
++            if (func == 0) sprintf(name, "MCHC");
++            else sprintf(name, "H%X", func);
++            break;
++
++        case 2:
++            // Slot 2: Graphics + associated HDMI Audio
++            if (func == 0) sprintf(name, "GFX0");      // Primary GPU
++            else if (func == 1) sprintf(name, "HDAU"); // HDMI Audio
++            else sprintf(name, "GFX%X", func);         // Fallback uniqueness
++            break;
++
++        case 3:
++            // Slot 3: Network
++            if (func == 0) sprintf(name, "GLAN");
++            else sprintf(name, "NET%X", func);
++            break;
++
++        case 4:
++            // Slot 4: Multimedia / Audio
++            if (func == 0) sprintf(name, "HDEF");
++            else sprintf(name, "MM%02X", func);
++            break;
++
++        case 5:
++            // Slot 5: USB XHCI (QEMU default often)
++            if (func == 0) sprintf(name, "XHC1");
++            else sprintf(name, "XHC%X", func);
++            break;
++
++        case 6:
++            // Slot 6: SATA (AHCI)
++            if (func == 0) sprintf(name, "SAT0");
++            else sprintf(name, "SAT%X", func);
++            break;
++
++        case 29:
++            // Slot 29 (0x1D): USB EHCI (Intel Standard)
++            if (func == 0) sprintf(name, "EHC1");
++            else sprintf(name, "EHC%X", func);
++            break;
++
++        case 31:
++            // Slot 31 (0x1F): LPC / SMBus / SATA 2
++            if (func == 0) sprintf(name, "LPCB");      // ISA Bridge
++            else if (func == 2) sprintf(name, "SAT1"); // 2nd SATA
++            else if (func == 3) sprintf(name, "SBUS"); // SMBus
++            else sprintf(name, "S31%X", func);         // Fallback
++            break;
++
++        default:
++            /* 
++             * For generic slots, we use "RP" (Root Port) + devfn (Hex).
++             * 
++             * Why 'devfn' and not 'slot'?
++             * - Slot 10, Func 0 (devfn 0x50) -> RP50
++             * - Slot 10, Func 1 (devfn 0x51) -> RP51
++             * 
++             * This guarantees ACPI uniqueness for multifunction devices
++             * while completely breaking the "S" + hex signature.
++             */
++            sprintf(name, "RP%02X", devfn);
++            break;
++    }
++}
++
+ bool build_append_notification_callback(Aml *parent_scope, const PCIBus *bus)
+ {
+     Aml *method;
 @@ -710,7 +787,11 @@ bool build_append_notification_callback(Aml *parent_scope, const PCIBus *bus)
      GQueue *pcnt_bus_list = g_queue_new();
  
@@ -279,6 +363,19 @@ index afe4ca4..fa4f4a0 100644
      .mask  = INPUT_EVENT_MASK_BTN | INPUT_EVENT_MASK_REL,
      .event = sunmouse_handle_event,
      .sync  = sunmouse_sync,
+diff --git a/hw/core/qdev.c b/hw/core/qdev.c
+index f600226..286843e 100644
+--- a/hw/core/qdev.c
++++ b/hw/core/qdev.c
+@@ -745,7 +745,7 @@ static void device_class_init(ObjectClass *class, const void *data)
+      * hotpluggable. Devices that shouldn't be hotpluggable,
+      * should override it in their class_init()
+      */
+-    dc->hotpluggable = true;
++    dc->hotpluggable = false;
+     dc->user_creatable = true;
+     vc->get_id = device_vmstate_if_get_id;
+     rc->get_state = device_get_reset_state;
 diff --git a/hw/display/edid-generate.c b/hw/display/edid-generate.c
 index 2cb8196..630a33b 100644
 --- a/hw/display/edid-generate.c
@@ -515,6 +612,57 @@ index 423c495..0c84657 100644
          dev = aml_device("PCI0");
          aml_append(dev, aml_name_decl("_HID", aml_eisaid("PNP0A08")));
          aml_append(dev, aml_name_decl("_CID", aml_eisaid("PNP0A03")));
+@@ -1186,7 +1310,7 @@ build_dsdt(GArray *table_data, BIOSLinker *linker,
+     /* create fw_cfg node, unconditionally */
+     {
+         scope = aml_scope("\\_SB.PCI0");
+-        fw_cfg_add_acpi_dsdt(scope, x86ms->fw_cfg);
++        //fw_cfg_add_acpi_dsdt(scope, x86ms->fw_cfg); Fix compile error
+         aml_append(dsdt, scope);
+     }
+ 
+@@ -1630,6 +1754,8 @@ build_dmar_q35(GArray *table_data, BIOSLinker *linker, const char *oem_id,
+  *
+  * Helpful to speedup Windows guests and ignored by others.
+  */
++// Disable WAET device (not found on bare metal systems)
++#if 0
+ static void
+ build_waet(GArray *table_data, BIOSLinker *linker, const char *oem_id,
+            const char *oem_table_id)
+@@ -1648,6 +1774,7 @@ build_waet(GArray *table_data, BIOSLinker *linker, const char *oem_id,
+     build_append_int_noprefix(table_data, 1 << 1 /* ACPI PM timer good */, 4);
+     acpi_table_end(linker, &table);
+ }
++#endif
+ 
+ /*
+  *   IVRS table as specified in AMD IOMMU Specification v2.62, Section 5.2
+@@ -2072,8 +2199,9 @@ void acpi_build(AcpiBuildTables *tables, MachineState *machine)
+                        x86ms->oem_id, x86ms->oem_table_id, &pcms->cxl_devices_state);
+     }
+ 
+-    acpi_add_table(table_offsets, tables_blob);
+-    build_waet(tables_blob, tables->linker, x86ms->oem_id, x86ms->oem_table_id);
++    // Disable WAET table (not found on bare metal systems)
++    // acpi_add_table(table_offsets, tables_blob);
++    // build_waet(tables_blob, tables->linker, x86ms->oem_id, x86ms->oem_table_id);
+ 
+     /* Add tables supplied by user (if any) */
+     for (u = acpi_table_first(); u; u = acpi_table_next(u)) {
+diff --git a/hw/i386/acpi-microvm.c b/hw/i386/acpi-microvm.c
+index bc65717..f4b1bea 100644
+--- a/hw/i386/acpi-microvm.c
++++ b/hw/i386/acpi-microvm.c
+@@ -118,7 +118,7 @@ build_dsdt_microvm(GArray *table_data, BIOSLinker *linker,
+     dsdt = init_aml_allocator();
+ 
+     sb_scope = aml_scope("_SB");
+-    fw_cfg_add_acpi_dsdt(sb_scope, x86ms->fw_cfg);
++    //fw_cfg_add_acpi_dsdt(sb_scope, x86ms->fw_cfg); Fix compile error
+     qbus_build_aml(BUS(isabus), sb_scope);
+     build_ged_aml(sb_scope, GED_DEVICE, x86ms->acpi_dev,
+                   GED_MMIO_IRQ, AML_SYSTEM_MEMORY, GED_MMIO_BASE);
 diff --git a/hw/i386/fw_cfg.c b/hw/i386/fw_cfg.c
 index 5c0bcd5..ac47187 100644
 --- a/hw/i386/fw_cfg.c
@@ -528,6 +676,20 @@ index 5c0bcd5..ac47187 100644
      }
  
      /* tell smbios about cpuid version and features */
+@@ -212,6 +212,8 @@ void fw_cfg_build_feature_control(MachineState *ms, FWCfgState *fw_cfg)
+     fw_cfg_add_file(fw_cfg, "etc/msr_feature_control", val, sizeof(*val));
+ }
+ 
++// Disable FWCF device (not found on bare metal systems)
++#if 0
+ #ifdef CONFIG_ACPI
+ void fw_cfg_add_acpi_dsdt(Aml *scope, FWCfgState *fw_cfg)
+ {
+@@ -240,3 +242,4 @@ void fw_cfg_add_acpi_dsdt(Aml *scope, FWCfgState *fw_cfg)
+     aml_append(scope, dev);
+ }
+ #endif
++#endif
 diff --git a/hw/i386/multiboot.c b/hw/i386/multiboot.c
 index 6e6b96b..f7de243 100644
 --- a/hw/i386/multiboot.c
@@ -558,6 +720,15 @@ index 1bdd3a6..76e7898 100644
  
  GlobalProperty pc_compat_10_0[] = {
      { TYPE_X86_CPU, "x-consistent-cache", "false" },
+@@ -1749,7 +1749,7 @@ static void pc_machine_class_init(ObjectClass *oc, const void *data)
+ 
+     pcmc->pci_enabled = true;
+     pcmc->has_acpi_build = true;
+-    pcmc->smbios_defaults = true;
++    pcmc->smbios_defaults = false;
+     pcmc->gigabyte_align = true;
+     pcmc->has_reserved_memory = true;
+     pcmc->enforce_amd_1tb_hole = true;
 diff --git a/hw/i386/pc_piix.c b/hw/i386/pc_piix.c
 index c033242..4ac1fe3 100644
 --- a/hw/i386/pc_piix.c
@@ -571,8 +742,12 @@ index c033242..4ac1fe3 100644
 +    m->family = "pc_x570";
 +    m->desc = "AMD Ryzen 7 5800X 8-Core Processor";
      m->default_machine_opts = "firmware=bios-256k.bin";
+-    m->default_display = "std";
 -    m->default_nic = "e1000";
+-    m->no_floppy = !module_object_class_by_name(TYPE_ISA_FDC);
++    m->default_display = "none";
 +    m->default_nic = "rtl8139"; // Realtek PCI Express Gigabit Ethernet Controller
++    m->no_floppy = 1;
      m->no_parallel = !module_object_class_by_name(TYPE_ISA_PARALLEL);
      machine_class_allow_dynamic_sysbus_dev(m, TYPE_RAMFB_DEVICE);
      machine_class_allow_dynamic_sysbus_dev(m, TYPE_VMBUS_BRIDGE);
@@ -599,7 +774,9 @@ index b309b2b..f714b43 100644
 +    m->desc = "AMD Ryzen 7 5800X 8-Core Processor";
      m->units_per_default_bus = 1;
      m->default_machine_opts = "firmware=bios-256k.bin";
+-    m->default_display = "std";
 -    m->default_nic = "e1000e";
++    m->default_display = "none";
 +    m->default_nic = "rtl8139"; // Realtek PCI Express Gigabit Ethernet Controller
      m->default_kernel_irqchip_split = false;
      m->no_floppy = 1;
@@ -1597,6 +1774,19 @@ index b051a99..a6c48cd 100644
      dc->vmsd           = &vmstate_u2f_key;
  }
  
+diff --git a/hw/vfio/ap.c b/hw/vfio/ap.c
+index 7719f24..d0306c5 100644
+--- a/hw/vfio/ap.c
++++ b/hw/vfio/ap.c
+@@ -341,7 +341,7 @@ static void vfio_ap_class_init(ObjectClass *klass, const void *data)
+     set_bit(DEVICE_CATEGORY_MISC, dc->categories);
+     dc->realize = vfio_ap_realize;
+     dc->unrealize = vfio_ap_unrealize;
+-    dc->hotpluggable = true;
++    dc->hotpluggable = false;
+     device_class_set_legacy_reset(dc, vfio_ap_reset);
+     dc->bus_type = TYPE_AP_BUS;
+ 
 diff --git a/include/hw/acpi/aml-build.h b/include/hw/acpi/aml-build.h
 index c18f681..e3656c1 100644
 --- a/include/hw/acpi/aml-build.h
@@ -1827,6 +2017,15 @@ diff --git a/target/i386/cpu.c b/target/i386/cpu.c
 index 25bbbf7..b3f6e21 100644
 --- a/target/i386/cpu.c
 +++ b/target/i386/cpu.c
+@@ -922,7 +922,7 @@ void x86_cpu_vendor_words2str(char *dst, uint32_t vendor1,
+           CPUID_EXT_MONITOR | CPUID_EXT_SSSE3 | CPUID_EXT_CX16 | \
+           CPUID_EXT_SSE41 | CPUID_EXT_SSE42 | CPUID_EXT_POPCNT | \
+           CPUID_EXT_XSAVE | /* CPUID_EXT_OSXSAVE is dynamic */   \
+-          CPUID_EXT_MOVBE | CPUID_EXT_AES | CPUID_EXT_HYPERVISOR | \
++          CPUID_EXT_MOVBE | CPUID_EXT_AES | \
+           CPUID_EXT_RDRAND | CPUID_EXT_AVX | CPUID_EXT_F16C | \
+           CPUID_EXT_FMA | CPUID_EXT_X2APIC | CPUID_EXT_KERNEL_FEATURES)
+           /* missing:
 @@ -3309,7 +3309,7 @@ static const X86CPUDefinition builtin_x86_defs[] = {
          .features[FEAT_8000_0001_ECX] =
              CPUID_EXT3_LAHF_LM | CPUID_EXT3_SVM,
@@ -1881,6 +2080,63 @@ index 25bbbf7..b3f6e21 100644
                                  &error_abort);
      }
  }
+@@ -7724,8 +7724,6 @@ static void x86_cpu_load_model(X86CPU *cpu, const X86CPUModel *model)
+     /* legacy-cache defaults to 'off' if CPU model provides cache info */
+     cpu->legacy_cache = !x86_cpu_get_versioned_cache_info(cpu, model);
+ 
+-    env->features[FEAT_1_ECX] |= CPUID_EXT_HYPERVISOR;
+-
+     /* sysenter isn't supported in compatibility mode on AMD,
+      * syscall isn't supported in compatibility mode on Intel.
+      * Normally we advertise the actual CPU vendor, but you can
+@@ -8299,18 +8297,10 @@ void cpu_x86_cpuid(CPUX86State *env, uint32_t index, uint32_t count,
+          * CPUID code in kvm_arch_init_vcpu() ignores stuff
+          * set here, but we restrict to TCG none the less.
+          */
+-        if (tcg_enabled() && cpu->expose_tcg) {
+-            memcpy(signature, "TCGTCGTCGTCG", 12);
+-            *eax = 0x40000001;
+-            *ebx = signature[0];
+-            *ecx = signature[1];
+-            *edx = signature[2];
+-        } else {
+-            *eax = 0;
+-            *ebx = 0;
+-            *ecx = 0;
+-            *edx = 0;
+-        }
++        *eax = 0;
++        *ebx = 0;
++        *ecx = 0;
++        *edx = 0;
+         break;
+     case 0x40000001:
+         *eax = 0;
+@@ -8767,10 +8757,11 @@ static void x86_cpu_reset_hold(Object *obj, ResetType type)
+ void x86_cpu_after_reset(X86CPU *cpu)
+ {
+ #ifndef CONFIG_USER_ONLY
++#if 0
+     if (kvm_enabled()) {
+         kvm_arch_after_reset_vcpu(cpu);
+     }
+-
++#endif
+     if (cpu->apic_state) {
+         device_cold_reset(cpu->apic_state);
+     }
+@@ -9075,9 +9066,11 @@ void x86_cpu_expand_features(X86CPU *cpu, Error **errp)
+         env->cpuid_xlevel2 = env->cpuid_min_xlevel2;
+     }
+ 
++#if 0
+     if (kvm_enabled() && !kvm_hyperv_expand_features(cpu, errp)) {
+         return;
+     }
++#endif
+ }
+ 
+ /*
 @@ -9171,7 +9164,7 @@ static void x86_cpu_hyperv_realize(X86CPU *cpu)
  
      /* Hyper-V vendor id */
@@ -1890,10 +2146,75 @@ index 25bbbf7..b3f6e21 100644
                                  &error_abort);
      }
      len = strlen(cpu->hyperv_vendor);
+@@ -9273,7 +9266,6 @@ static void x86_cpu_realizefn(DeviceState *dev, Error **errp)
+      * Process Hyper-V enlightenments.
+      * Note: this currently has to happen before the expansion of CPU features.
+      */
+-    x86_cpu_hyperv_realize(cpu);
+ 
+     x86_cpu_expand_features(cpu, &local_err);
+     if (local_err) {
+diff --git a/target/i386/hvf/x86_cpuid.c b/target/i386/hvf/x86_cpuid.c
+index 0798a0c..d965113 100644
+--- a/target/i386/hvf/x86_cpuid.c
++++ b/target/i386/hvf/x86_cpuid.c
+@@ -80,7 +80,6 @@ uint32_t hvf_get_supported_cpuid(uint32_t func, uint32_t idx,
+              CPUID_EXT_POPCNT | CPUID_EXT_AES | CPUID_EXT_X2APIC |
+              (supported_xcr0 ? CPUID_EXT_XSAVE : 0) |
+              CPUID_EXT_AVX | CPUID_EXT_F16C | CPUID_EXT_RDRAND;
+-        ecx |= CPUID_EXT_HYPERVISOR;
+         break;
+     case 6:
+         eax = CPUID_6_EAX_ARAT;
+diff --git a/target/i386/kvm/kvm-cpu.c b/target/i386/kvm/kvm-cpu.c
+index 9c25b55..1ae774b 100644
+--- a/target/i386/kvm/kvm-cpu.c
++++ b/target/i386/kvm/kvm-cpu.c
+@@ -174,17 +174,6 @@ static void kvm_cpu_xsave_init(void)
+  *       docs/system/target-i386.rst)
+  */
+ static PropValue kvm_default_props[] = {
+-    { "kvmclock", "on" },
+-    { "kvm-nopiodelay", "on" },
+-    { "kvm-asyncpf", "on" },
+-    { "kvm-steal-time", "on" },
+-    { "kvm-pv-eoi", "on" },
+-    { "kvmclock-stable-bit", "on" },
+-    { "x2apic", "on" },
+-    { "kvm-msi-ext-dest-id", "off" },
+-    { "acpi", "off" },
+-    { "monitor", "off" },
+-    { "svm", "off" },
+     { NULL, NULL },
+ };
+ 
+@@ -216,13 +205,6 @@ static void kvm_cpu_instance_init(CPUState *cs)
+     host_cpu_instance_init(cpu);
+ 
+     if (xcc->model) {
+-        /* only applies to builtin_x86_defs cpus */
+-        if (!kvm_irqchip_in_kernel()) {
+-            x86_cpu_change_kvm_default("x2apic", "off");
+-        } else if (kvm_irqchip_is_split()) {
+-            x86_cpu_change_kvm_default("kvm-msi-ext-dest-id", "on");
+-        }
+-
+         /* Special cases not set in the X86CPUDefinition structs: */
+         x86_cpu_apply_props(cpu, kvm_default_props);
+     }
 diff --git a/target/i386/kvm/kvm.c b/target/i386/kvm/kvm.c
 index 994b971..cfc574c 100644
 --- a/target/i386/kvm/kvm.c
 +++ b/target/i386/kvm/kvm.c
+@@ -457,7 +457,7 @@ uint32_t kvm_arch_get_supported_cpuid(KVMState *s, uint32_t function,
+         /* We can set the hypervisor flag, even if KVM does not return it on
+          * GET_SUPPORTED_CPUID
+          */
+-        ret |= CPUID_EXT_HYPERVISOR;
++
+         /* tsc-deadline flag is not returned by GET_SUPPORTED_CPUID, but it
+          * can be enabled if the kernel has KVM_CAP_TSC_DEADLINE_TIMER,
+          * and the irqchip is in the kernel.
 @@ -1647,7 +1647,7 @@ static int hyperv_fill_cpuids(CPUState *cs,
          c->function = HV_CPUID_SYNDBG_VENDOR_AND_MAX_FUNCTIONS;
          c->eax = hyperv_feat_enabled(cpu, HYPERV_FEAT_EVMCS) ?
@@ -1912,6 +2233,14 @@ index 994b971..cfc574c 100644
          c->eax = signature[0];
          c->ebx = 0;
          c->ecx = 0;
+@@ -2145,6 +2145,7 @@ int kvm_arch_init_vcpu(CPUState *cs)
+ 
+     env->apic_bus_freq = KVM_APIC_BUS_FREQUENCY;
+ 
++#if 0
+     /*
+      * kvm_hyperv_expand_features() is called here for the second time in case
+      * KVM_CAP_SYS_HYPERV_CPUID is not supported. While we can't possibly handle
 @@ -2173,7 +2174,7 @@ int kvm_arch_init_vcpu(CPUState *cs)
  #ifdef CONFIG_XEN_EMU
          struct kvm_cpuid_entry2 *xen_max_leaf;
@@ -1930,6 +2259,56 @@ index 994b971..cfc574c 100644
          c = &cpuid_data.entries[cpuid_i++];
          c->function = KVM_CPUID_SIGNATURE | kvm_base;
          c->eax = KVM_CPUID_FEATURES | kvm_base;
+@@ -2262,7 +2263,9 @@ int kvm_arch_init_vcpu(CPUState *cs)
+         c->eax = env->features[FEAT_KVM];
+         c->edx = env->features[FEAT_KVM_HINTS];
+     }
++#endif
+ 
++#if 0
+     if (cpu->kvm_pv_enforce_cpuid) {
+         r = kvm_vcpu_enable_cap(cs, KVM_CAP_ENFORCE_PV_FEATURE_CPUID, 0, 1);
+         if (r < 0) {
+@@ -2272,6 +2275,7 @@ int kvm_arch_init_vcpu(CPUState *cs)
+             abort();
+         }
+     }
++#endif
+ 
+     cpuid_i = kvm_x86_build_cpuid(env, cpuid_data.entries, cpuid_i);
+     cpuid_data.cpuid.nent = cpuid_i;
+@@ -2344,6 +2348,7 @@ int kvm_arch_init_vcpu(CPUState *cs)
+         }
+     }
+ 
++#if 0
+     if (cpu->vmware_cpuid_freq
+         /* Guests depend on 0x40000000 to detect this feature, so only expose
+          * it if KVM exposes leaf 0x40000000. (Conflicts with Hyper-V) */
+@@ -2361,6 +2366,7 @@ int kvm_arch_init_vcpu(CPUState *cs)
+         c = cpuid_find_entry(&cpuid_data.cpuid, kvm_base, 0);
+         c->eax = MAX(c->eax, KVM_CPUID_SIGNATURE | 0x10);
+     }
++#endif
+ 
+     cpuid_data.cpuid.nent = cpuid_i;
+ 
+@@ -2437,6 +2443,7 @@ void kvm_arch_reset_vcpu(X86CPU *cpu)
+     sev_es_set_reset_vector(CPU(cpu));
+ }
+ 
++#if 0
+ void kvm_arch_after_reset_vcpu(X86CPU *cpu)
+ {
+     CPUX86State *env = &cpu->env;
+@@ -2454,6 +2461,7 @@ void kvm_arch_after_reset_vcpu(X86CPU *cpu)
+         hyperv_x86_synic_reset(cpu);
+     }
+ }
++#endif
+ 
+ void kvm_arch_reset_parked_vcpu(unsigned long vcpu_id, int kvm_fd)
+ {
 diff --git a/target/s390x/cpu_models.c b/target/s390x/cpu_models.c
 index 954a7a9..3f1fe01 100644
 --- a/target/s390x/cpu_models.c
